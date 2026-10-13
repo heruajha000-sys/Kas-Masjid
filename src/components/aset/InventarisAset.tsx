@@ -666,6 +666,16 @@ export const InventarisAset: React.FC<InventarisAsetProps> = ({
                 </div>
               );
             })}
+
+            {filteredAssets.length === 0 && (
+              <div className="col-span-full p-10 text-center text-slate-500 bg-slate-900/60 rounded-2xl border border-dashed border-slate-800">
+                <Package className="w-10 h-10 mx-auto text-slate-600 mb-2 stroke-1" />
+                <p className="font-semibold text-slate-400">Belum ada inventaris aset terdaftar</p>
+                <p className="text-xs text-slate-500 mt-1">
+                  Klik "+ Tambah Aset Baru" di atas untuk mendaftarkan barang dan sarana masjid.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       )}

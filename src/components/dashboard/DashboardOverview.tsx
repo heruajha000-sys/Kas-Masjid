@@ -340,9 +340,18 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
             </div>
 
             <div className="divide-y divide-slate-100">
-              {recentTransactions.map((trx) => {
-                const acc = accounts.find((a) => a.id === trx.accountId);
-                return (
+              {recentTransactions.length === 0 ? (
+                <div className="py-8 px-4 text-center text-slate-400 text-xs">
+                  <Wallet className="w-8 h-8 mx-auto text-slate-300 mb-2 stroke-1" />
+                  <p className="font-semibold text-slate-600">Belum ada transaksi kas yang dicatat</p>
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    Gunakan tombol "+ Pemasukan" atau "- Pengeluaran" di atas untuk memulai pencatatan kas masjid.
+                  </p>
+                </div>
+              ) : (
+                recentTransactions.map((trx) => {
+                  const acc = accounts.find((a) => a.id === trx.accountId);
+                  return (
                   <div
                     key={trx.id}
                     className="py-3 flex items-center justify-between gap-3 text-sm hover:bg-slate-50/70 px-2 rounded-xl transition-colors"
@@ -397,7 +406,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                     </div>
                   </div>
                 );
-              })}
+              }))}
             </div>
           </div>
         </div>

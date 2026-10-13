@@ -134,7 +134,7 @@ export const DEFAULT_ACCOUNTS: BankAccount[] = [
     bankName: 'Bank Syariah Indonesia (BSI)',
     accountNumber: '7123456789',
     holderName: 'DKM Masjid Nurul Ilmi',
-    balance: 51250000,
+    balance: 0,
     isDefault: true,
     color: '#10b981', // emerald
   },
@@ -144,7 +144,7 @@ export const DEFAULT_ACCOUNTS: BankAccount[] = [
     bankName: 'Bank Syariah Indonesia (BSI)',
     accountNumber: '7199887766',
     holderName: 'Panitia Pembangunan Nurul Ilmi',
-    balance: 78500000,
+    balance: 0,
     color: '#f59e0b', // amber
   },
   {
@@ -153,7 +153,7 @@ export const DEFAULT_ACCOUNTS: BankAccount[] = [
     bankName: 'Brankas Tunai Masjid',
     accountNumber: 'CASH-001',
     holderName: 'Bendahara Masjid Nurul Ilmi',
-    balance: 8450000,
+    balance: 0,
     color: '#0284c7', // sky
   },
   {
@@ -162,389 +162,24 @@ export const DEFAULT_ACCOUNTS: BankAccount[] = [
     bankName: 'Bank Muamalat',
     accountNumber: '3410098765',
     holderName: 'LAZIS Masjid Nurul Ilmi',
-    balance: 19300000,
+    balance: 0,
     color: '#8b5cf6', // purple
   },
 ];
 
-export const DEFAULT_TRANSACTIONS: Transaction[] = [
-  {
-    id: 'trx-1',
-    date: '2026-09-18',
-    type: 'in',
-    amount: 5850000,
-    accountId: 'acc-tunai',
-    category: 'Kotak Infaq Jumat',
-    description: 'Penerimaan infaq dan sedekah tromol sholat Jumat pekan ke-3',
-    recordedBy: 'Ustadz Ahmad Fauzi, S.E.',
-    userRole: 'bendahara',
-    receiptName: 'berita-acara-jumat.jpg',
-    driveSynced: true,
-  },
-  {
-    id: 'trx-2',
-    date: '2026-09-17',
-    type: 'in',
-    amount: 15000000,
-    accountId: 'acc-renovasi',
-    category: 'Donasi Renovasi Kubah',
-    description: 'Infaq jariyah pembangunan kanopi selasar dari Hamba Allah via transfer',
-    recordedBy: 'Ustadz Ahmad Fauzi, S.E.',
-    userRole: 'bendahara',
-    receiptName: 'bukti-transfer-kanopi.pdf',
-    driveSynced: true,
-  },
-  {
-    id: 'trx-3',
-    date: '2026-09-16',
-    type: 'out',
-    amount: 1450000,
-    accountId: 'acc-utama',
-    category: 'Listrik & Air PLN/PDAM',
-    description: 'Pembayaran tagihan listrik token utama masjid dan pompa air wudhu',
-    recordedBy: 'Ustadz Ahmad Fauzi, S.E.',
-    userRole: 'bendahara',
-    receiptName: 'struk-pln-sept.jpg',
-    driveSynced: true,
-  },
-  {
-    id: 'trx-4',
-    date: '2026-09-15',
-    type: 'out',
-    amount: 2500000,
-    accountId: 'acc-tunai',
-    category: 'Kebersihan & Perlengkapan',
-    description: 'Belanja cairan pembersih lantai, pewangi karpet, sabun cuci tangan & tisu',
-    recordedBy: 'Muhammad Ridwan, S.Kom',
-    userRole: 'sekretaris',
-    receiptName: 'nota-toko-bersih.jpg',
-    driveSynced: true,
-  },
-  {
-    id: 'trx-5',
-    date: '2026-09-14',
-    type: 'in',
-    amount: 2350000,
-    accountId: 'acc-utama',
-    category: 'QRIS Non-Tunai',
-    description: 'Akumulasi infaq jamaah scan barcode QRIS pekan berjalan',
-    recordedBy: 'Ustadz Ahmad Fauzi, S.E.',
-    userRole: 'bendahara',
-    driveSynced: true,
-  },
-  {
-    id: 'trx-6',
-    date: '2026-09-12',
-    type: 'out',
-    amount: 3000000,
-    accountId: 'acc-sosial',
-    category: 'Santunan Yatim & Dhuafa',
-    description: 'Penyaluran beasiswa santri dhuafa dan sembako 10 janda lansia sekitar masjid',
-    recordedBy: 'Ustadz Ahmad Fauzi, S.E.',
-    userRole: 'bendahara',
-    receiptName: 'tanda-terima-santunan.pdf',
-    driveSynced: true,
-  },
-  {
-    id: 'trx-7',
-    date: '2026-09-11',
-    type: 'in',
-    amount: 6200000,
-    accountId: 'acc-tunai',
-    category: 'Kotak Infaq Jumat',
-    description: 'Penerimaan infaq dan sedekah tromol sholat Jumat pekan ke-2',
-    recordedBy: 'Ustadz Ahmad Fauzi, S.E.',
-    userRole: 'bendahara',
-    driveSynced: true,
-  }
-];
+export const DEFAULT_TRANSACTIONS: Transaction[] = [];
 
-export const DEFAULT_DUTIES: DutySchedule[] = [
-  {
-    id: 'duty-1',
-    date: '2026-09-18',
-    type: 'Jumat',
-    khatib: 'Prof. Dr. KH. Syukron Ma\'mun',
-    imam: 'Ustadz Hafizh Al-Bantani, Lc.',
-    muadzin: 'Ust. Bilal Mansur',
-    theme: 'Memakmurkan Rumah Allah dengan Kejujuran dan Keteladanan Sosial',
-    phone: '081234567801',
-    waSent: true,
-  },
-  {
-    id: 'duty-2',
-    date: '2026-09-20',
-    type: 'Kajian Ahad',
-    khatib: '-',
-    imam: 'Ustadz Farhan Kamil',
-    muadzin: 'Kang Ilham',
-    penceramah: 'Ustadz Dr. H. Khalid Mubarok, M.A.',
-    theme: 'Bedah Kitab Riyadush Shalihin: Adab Bertetangga & Ukhuwah',
-    phone: '081399887766',
-    waSent: false,
-  },
-  {
-    id: 'duty-3',
-    date: '2026-09-25',
-    type: 'Jumat',
-    khatib: 'Ustadz H. Anshori Muslim, M.Ag',
-    imam: 'Ustadz Qari Muhammad Fatih',
-    muadzin: 'Ust. Bilal Mansur',
-    theme: 'Tazkiyatun Nafs: Menjaga Hati Bersih Menghadapi Godaan Duniawi',
-    phone: '081577889900',
-    waSent: false,
-  },
-  {
-    id: 'duty-4',
-    date: '2026-09-27',
-    type: 'Subuh Akbar',
-    khatib: '-',
-    imam: 'Syeikh Tareq Al-Madani',
-    muadzin: 'Kang Ilham',
-    penceramah: 'KH. Abdullah Gymnastiar',
-    theme: 'Kekuatan Doa dan Keberkahan Sholat Subuh Berjamaah',
-    phone: '081288990011',
-    waSent: false,
-  }
-];
+export const DEFAULT_DUTIES: DutySchedule[] = [];
 
-export const DEFAULT_MEETINGS: MeetingRecord[] = [
-  {
-    id: 'meet-1',
-    title: 'Rapat Pleno Koordinasi Persiapan Maulid Nabi & Evaluasi Keuangan',
-    date: '2026-09-10',
-    time: '20:00 WIB',
-    location: 'Ruang Rapat Utama Lantai 2 Masjid',
-    leader: 'H. Bambang Sulistyo, M.Ag (Ketua Takmir)',
-    agenda: '1. Laporan keuangan kas agustus-september. 2. Pembentukan panitia peringatan hari besar Islam. 3. Usulan perbaikan sound system.',
-    minutes: 'Disepakati alokasi anggaran Rp 12.000.000 untuk kegiatan tabligh akbar, serta perbaikan kabel mikrofon mihrab yang sudah kresek. Bendahara diminta menyiapkan laporan kas cetak untuk mading digital.',
-    attendees: [
-      { name: 'H. Bambang Sulistyo, M.Ag', role: 'Ketua Takmir', present: true },
-      { name: 'Ustadz Ahmad Fauzi, S.E.', role: 'Bendahara', present: true },
-      { name: 'Muhammad Ridwan, S.Kom', role: 'Sekretaris', present: true },
-      { name: 'Ustadz Farhan Kamil', role: 'Sie Ibadah', present: true },
-      { name: 'Pak Joko Subroto', role: 'Sie Pemeliharaan & Aset', present: true },
-      { name: 'Ibu Hj. Maryam', role: 'Sie Muslimah & Sosial', present: false, notes: 'Izin ke luar kota' },
-    ],
-    photoUrl: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=500&auto=format&fit=crop&q=80',
-  }
-];
+export const DEFAULT_MEETINGS: MeetingRecord[] = [];
 
-export const DEFAULT_QURBAN: QurbanParticipant[] = [
-  {
-    id: 'qrb-1',
-    year: 2026,
-    type: 'sapi',
-    groupNumber: 1,
-    participantName: 'H. Bambang Sulistyo & Keluarga',
-    phone: '081122334455',
-    address: 'Jl. Melati Blok C No. 12',
-    targetAmount: 3800000,
-    paidAmount: 3800000,
-    paymentStatus: 'lunas',
-    payments: [
-      { id: 'p-1', date: '2026-07-15', amount: 2000000, note: 'DP Awal Pendaftaran' },
-      { id: 'p-2', date: '2026-08-20', amount: 1800000, note: 'Pelunasan Qurban Sapi Kelompok 1' }
-    ],
-    notes: 'Qurban atas nama 1 keluarga, bagian daging mohon diantar.'
-  },
-  {
-    id: 'qrb-2',
-    year: 2026,
-    type: 'sapi',
-    groupNumber: 1,
-    participantName: 'Drs. Hendra Setiawan',
-    phone: '081288776655',
-    address: 'Komplek Permata Indah B4',
-    targetAmount: 3800000,
-    paidAmount: 2500000,
-    paymentStatus: 'cicilan',
-    payments: [
-      { id: 'p-3', date: '2026-08-05', amount: 2500000, note: 'Cicilan ke-1' }
-    ],
-    notes: 'Sisa cicilan akan ditransfer akhir bulan ini'
-  },
-  {
-    id: 'qrb-3',
-    year: 2026,
-    type: 'kambing',
-    participantName: 'Ibu Ratna Dewi',
-    phone: '081377665544',
-    address: 'Jl. Anggrek No. 8',
-    targetAmount: 3200000,
-    paidAmount: 3200000,
-    paymentStatus: 'lunas',
-    payments: [
-      { id: 'p-4', date: '2026-08-10', amount: 3200000, note: 'Pelunasan Langsung Kambing Kelas A' }
-    ]
-  }
-];
+export const DEFAULT_QURBAN: QurbanParticipant[] = [];
 
-export const DEFAULT_ASSETS: MosqueAsset[] = [
-  {
-    id: 'ast-1',
-    code: 'AST-SND-001',
-    name: 'Wireless Microphone Shure Dual Handheld',
-    category: 'Audio & Sound System',
-    totalQuantity: 4,
-    availableQuantity: 3,
-    unit: 'Set',
-    purchaseDate: '2025-11-20',
-    fundingSource: 'Infaq Tromol Kas Tunai',
-    condition: 'baik',
-    location: 'Ruang Operator Audio Lt. 1',
-    estimatedValue: 4800000,
-    photoUrl: 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=300&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'ast-2',
-    code: 'AST-KRS-002',
-    name: 'Kursi Lipat Futura Stainless Polos',
-    category: 'Furnitur & Tenda',
-    totalQuantity: 80,
-    availableQuantity: 50,
-    unit: 'Buah',
-    purchaseDate: '2025-06-14',
-    fundingSource: 'Wakaf Donatur Tetap',
-    condition: 'baik',
-    location: 'Gudang Sayap Kanan',
-    estimatedValue: 17600000,
-    photoUrl: 'https://images.unsplash.com/photo-1503602642458-232111445657?w=300&auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'ast-3',
-    code: 'AST-GEN-003',
-    name: 'Genset Silent Honda 5500 Watt',
-    category: 'Kelistrikan & Mesin',
-    totalQuantity: 1,
-    availableQuantity: 1,
-    unit: 'Unit',
-    purchaseDate: '2024-03-10',
-    fundingSource: 'Kas Pembangunan',
-    condition: 'baik',
-    location: 'Ruang Mesin Belakang',
-    estimatedValue: 14500000,
-  },
-  {
-    id: 'ast-4',
-    code: 'AST-PRJ-004',
-    name: 'Proyektor Epson EB-E01 3300 Lumens',
-    category: 'Elektronik & Multimedia',
-    totalQuantity: 2,
-    availableQuantity: 2,
-    unit: 'Unit',
-    purchaseDate: '2025-01-18',
-    fundingSource: 'Kas Operasional BSI',
-    condition: 'baik',
-    location: 'Lemari Kantor Sekretariat',
-    estimatedValue: 6200000,
-  },
-  {
-    id: 'ast-5',
-    code: 'AST-TND-005',
-    name: 'Tenda Lipat Portable Ukuran 3x3 Meter',
-    category: 'Furnitur & Tenda',
-    totalQuantity: 4,
-    availableQuantity: 2,
-    unit: 'Unit',
-    purchaseDate: '2025-08-01',
-    fundingSource: 'Infaq Khusus Pemuda Remaja',
-    condition: 'baik',
-    location: 'Gudang Perlengkapan Luar',
-    estimatedValue: 3600000,
-  }
-];
+export const DEFAULT_ASSETS: MosqueAsset[] = [];
 
-export const DEFAULT_LOANS: AssetLoan[] = [
-  {
-    id: 'loan-1',
-    assetId: 'ast-2',
-    assetName: 'Kursi Lipat Futura Stainless Polos',
-    borrowerName: 'Pak Dedi Supriyadi (Jamaah RT 04)',
-    borrowerPhone: '081290887766',
-    borrowerAddress: 'Jl. Dahlia No. 15 RT 04/06',
-    quantity: 30,
-    borrowDate: '2026-09-17',
-    expectedReturnDate: '2026-09-19',
-    status: 'dipinjam',
-    notes: 'Untuk acara tasyakuran khitanan keluarga'
-  },
-  {
-    id: 'loan-2',
-    assetId: 'ast-5',
-    assetName: 'Tenda Lipat Portable Ukuran 3x3 Meter',
-    borrowerName: 'Remaja Karang Taruna RW 06',
-    borrowerPhone: '085611223344',
-    borrowerAddress: 'Pos Balai Warga RW 06',
-    quantity: 2,
-    borrowDate: '2026-09-16',
-    expectedReturnDate: '2026-09-18',
-    status: 'dipinjam',
-    notes: 'Posko cek kesehatan gratis lansia'
-  },
-  {
-    id: 'loan-3',
-    assetId: 'ast-1',
-    assetName: 'Wireless Microphone Shure Dual Handheld',
-    borrowerName: 'Ust. Salman Al-Farisi',
-    borrowerPhone: '081322334455',
-    borrowerAddress: 'Pesantren Tahfizh Dhuafa',
-    quantity: 1,
-    borrowDate: '2026-09-10',
-    expectedReturnDate: '2026-09-12',
-    actualReturnDate: '2026-09-12',
-    status: 'kembali',
-    notes: 'Dikembalikan lengkap dengan baterai baru'
-  }
-];
+export const DEFAULT_LOANS: AssetLoan[] = [];
 
-export const DEFAULT_AUDIT_LOGS: AuditLog[] = [
-  {
-    id: 'log-1',
-    timestamp: '2026-09-18 10:45:12',
-    userName: 'Ustadz Ahmad Fauzi, S.E.',
-    userRole: 'bendahara',
-    action: 'Pencatatan Infaq Kas',
-    details: 'Mencatat penerimaan Infaq Tromol Jumat sebesar Rp 5.850.000 ke Kas Tunai Utama',
-    category: 'kas',
-  },
-  {
-    id: 'log-2',
-    timestamp: '2026-09-18 09:15:00',
-    userName: 'Muhammad Ridwan, S.Kom',
-    userRole: 'sekretaris',
-    action: 'Kirim Pengingat WhatsApp Petugas',
-    details: 'Mengirim WA konfirmasi tugas Khotib Jumat kepada Prof. Dr. KH. Syukron Ma\'mun',
-    category: 'jadwal',
-  },
-  {
-    id: 'log-3',
-    timestamp: '2026-09-17 16:30:21',
-    userName: 'Muhammad Ridwan, S.Kom',
-    userRole: 'sekretaris',
-    action: 'Peminjaman Aset',
-    details: 'Mencatat peminjaman 30 Kursi Lipat oleh Bpk Dedi Supriyadi (Stok otomatis berkurang)',
-    category: 'aset',
-  },
-  {
-    id: 'log-4',
-    timestamp: '2026-09-17 14:00:10',
-    userName: 'Ustadz Ahmad Fauzi, S.E.',
-    userRole: 'bendahara',
-    action: 'Sinkronisasi Google Drive',
-    details: 'Berhasil backup otomatis database kas dan nota kuitansi ke folder Google Drive Masjid',
-    category: 'drive',
-  },
-  {
-    id: 'log-5',
-    timestamp: '2026-09-15 20:10:05',
-    userName: 'H. Bambang Sulistyo, M.Ag',
-    userRole: 'ketua_takmir',
-    action: 'Login Sistem',
-    details: 'Ketua Takmir berhasil login dari perangkat pengawas',
-    category: 'sistem',
-  }
-];
+export const DEFAULT_AUDIT_LOGS: AuditLog[] = [];
 
 export const DEFAULT_DRIVE_CONFIG: GoogleDriveConfig = {
   connected: true,
@@ -554,6 +189,29 @@ export const DEFAULT_DRIVE_CONFIG: GoogleDriveConfig = {
   lastBackupDate: '18 September 2026, 14:00 WIB',
   autoSync: true,
 };
+
+// Inisialisasi pengosongan seluruh data sesuai instruksi pengguna ("Kosongkan semua data")
+const CLEAR_ALL_DATA_FLAG = 'masjid_cleared_empty_v5';
+if (typeof window !== 'undefined' && window.localStorage) {
+  if (localStorage.getItem(CLEAR_ALL_DATA_FLAG) !== 'true') {
+    try {
+      localStorage.setItem(STORAGE_KEYS.TRANSACTIONS, JSON.stringify([]));
+      localStorage.setItem(STORAGE_KEYS.DUTY_SCHEDULES, JSON.stringify([]));
+      localStorage.setItem(STORAGE_KEYS.MEETINGS, JSON.stringify([]));
+      localStorage.setItem(STORAGE_KEYS.QURBAN, JSON.stringify([]));
+      localStorage.setItem(STORAGE_KEYS.ASSETS, JSON.stringify([]));
+      localStorage.setItem(STORAGE_KEYS.LOANS, JSON.stringify([]));
+      localStorage.setItem(STORAGE_KEYS.AUDIT_LOGS, JSON.stringify([]));
+
+      const zeroedAccounts = DEFAULT_ACCOUNTS.map((a) => ({ ...a, balance: 0 }));
+      localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(zeroedAccounts));
+
+      localStorage.setItem(CLEAR_ALL_DATA_FLAG, 'true');
+    } catch (e) {
+      console.error('Error emptying initial localStorage data:', e);
+    }
+  }
+}
 
 // Generic storage getters and setters
 export function loadFromStorage<T>(key: string, fallback: T): T {
@@ -790,6 +448,7 @@ export const appStorage = {
       meetings?: boolean;
       qurban?: boolean;
       duties?: boolean;
+      assets?: boolean;
       loans?: boolean;
       auditLogs?: boolean;
       customCategories?: boolean;
@@ -813,6 +472,9 @@ export const appStorage = {
     }
     if (options.duties) {
       appStorage.saveDuties([]);
+    }
+    if (options.assets) {
+      appStorage.saveAssets([]);
     }
     if (options.loans) {
       appStorage.saveLoans([]);

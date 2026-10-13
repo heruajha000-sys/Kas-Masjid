@@ -146,6 +146,7 @@ export const ResetDataManager: React.FC<ResetDataManagerProps> = ({
               meetings: true,
               qurban: true,
               duties: true,
+              assets: true,
               loans: true,
               auditLogs: true,
               customCategories: true,

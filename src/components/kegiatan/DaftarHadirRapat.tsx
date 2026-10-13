@@ -232,10 +232,19 @@ export const DaftarHadirRapat: React.FC<DaftarHadirRapatProps> = ({
             Arsip Pertemuan & Rapat ({meetings.length})
           </h4>
 
-          {meetings.map((m) => {
-            const isSelected = selectedMeeting?.id === m.id;
-            const presentCount = m.attendees.filter((a) => a.present).length;
-            return (
+          {meetings.length === 0 ? (
+            <div className="p-6 text-center text-xs text-slate-500 bg-slate-900/60 rounded-2xl border border-dashed border-slate-800">
+              <Calendar className="w-8 h-8 mx-auto text-slate-600 mb-2 stroke-1" />
+              <p className="font-semibold text-slate-400">Belum ada notulen rapat</p>
+              <p className="text-[11px] text-slate-500 mt-0.5">
+                Klik "+ Buat Notulen Rapat" di atas untuk mencatat agenda rapat baru.
+              </p>
+            </div>
+          ) : (
+            meetings.map((m) => {
+              const isSelected = selectedMeeting?.id === m.id;
+              const presentCount = m.attendees.filter((a) => a.present).length;
+              return (
               <div
                 key={m.id}
                 onClick={() => setSelectedMeeting(m)}
@@ -273,7 +282,7 @@ export const DaftarHadirRapat: React.FC<DaftarHadirRapatProps> = ({
                 </p>
               </div>
             );
-          })}
+          }))}
         </div>
 
         {/* Selected Meeting Details */}
@@ -428,7 +437,9 @@ export const DaftarHadirRapat: React.FC<DaftarHadirRapatProps> = ({
             </div>
           ) : (
             <div className="p-10 text-center text-slate-500 bg-slate-900 rounded-3xl border border-slate-800">
-              Pilih salah satu rapat dari daftar di sebelah kiri.
+              {meetings.length === 0
+                ? 'Belum ada notulen rapat. Klik "+ Buat Notulen Rapat" di atas untuk membuat rapat perdana.'
+                : 'Pilih salah satu rapat dari daftar di sebelah kiri.'}
             </div>
           )}
         </div>
