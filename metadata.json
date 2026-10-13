@@ -1,0 +1,6 @@
+{
+  "name": "Sistem Kas & Mading Digital Masjid",
+  "description": "Aplikasi manajemen kas masjid transparan & aman, multi-user, pembukuan multi-rekening, ekspor laporan PDF/Excel, mading TV digital masjid dengan jadwal sholat, adzan countdown, dan modul administrasi aset.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
