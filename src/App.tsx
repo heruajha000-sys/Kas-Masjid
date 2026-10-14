@@ -284,14 +284,19 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-[100dvh] h-[100dvh] bg-slate-100 text-slate-800 flex flex-col font-sans selection:bg-emerald-500 selection:text-white overflow-hidden">
+    <div
+      className={`min-h-[100dvh] ${
+        currentMode === 'tv' ? 'h-auto min-h-screen overflow-y-auto' : 'h-[100dvh] overflow-hidden'
+      } bg-slate-100 text-slate-800 flex flex-col font-sans selection:bg-emerald-500 selection:text-white`}
+    >
       {/* 1. TV DIGITAL DISPLAY MODE */}
       {currentMode === 'tv' && (
-        <div className="relative flex-1 min-h-[100dvh] h-[100dvh] bg-slate-950 text-slate-100 overflow-hidden">
+        <div className="relative flex-1 min-h-[100dvh] w-full bg-slate-950 text-slate-100 flex flex-col overflow-y-auto overflow-x-hidden">
           <TvDigitalDisplay
             profile={profile}
             accounts={accounts}
             transactions={transactions}
+            duties={duties}
             onOpenLogin={() => setShowLoginModal(true)}
             onOpenDashboard={() => setCurrentMode('admin')}
             isLoggedIn={Boolean(currentUser)}
@@ -304,7 +309,7 @@ export default function App() {
               className="px-4 py-2 rounded-full bg-slate-900/95 hover:bg-slate-800 text-emerald-400 border border-emerald-500/40 text-xs font-bold shadow-xl backdrop-blur-md flex items-center gap-2 transition-all"
             >
               <Settings className="w-3.5 h-3.5" />
-              <span>Kembali ke Menu Admin ({profile.name})</span>
+              <span>Kembali ke Menu Admin</span>
             </button>
           </div>
         </div>
