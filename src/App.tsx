@@ -20,6 +20,9 @@ import {
   UserCheck,
   Layers,
   CreditCard,
+  Maximize2,
+  Minimize2,
+  Smartphone,
 } from 'lucide-react';
 import {
   MosqueProfile,
@@ -35,6 +38,7 @@ import {
 } from './types';
 import { appStorage } from './utils/storage';
 import { DeleteConfirmModal } from './components/common/DeleteConfirmModal';
+import { FullscreenGuideModal } from './components/common/FullscreenGuideModal';
 import { TvDigitalDisplay } from './components/tv/TvDigitalDisplay';
 import { KasManager } from './components/kas/KasManager';
 import { JadwalPetugas } from './components/kegiatan/JadwalPetugas';
@@ -77,7 +81,92 @@ export default function App() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [showFullscreenModal, setShowFullscreenModal] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [settingsInitialTab, setSettingsInitialTab] = useState<SettingsTabType>('profile');
+
+  // PWA install prompt state
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+  }, []);
+
+  const handleInstallApp = async () => {
+    if (deferredPrompt) {
+      try {
+        deferredPrompt.prompt();
+        const choiceResult = await deferredPrompt.userChoice;
+        if (choiceResult && choiceResult.outcome === 'accepted') {
+          setDeferredPrompt(null);
+        }
+      } catch (err) {
+        setShowFullscreenModal(true);
+      }
+    } else {
+      setShowFullscreenModal(true);
+    }
+  };
+
+  // Fullscreen Toggle Helper (Cross-browser for mobile Android, iOS WebKit, Chrome)
+  const toggleFullscreen = () => {
+    try {
+      const doc = document as any;
+      const docEl = document.documentElement as any;
+
+      if (!doc.fullscreenElement && !doc.webkitFullscreenElement && !doc.mozFullScreenElement && !doc.msFullscreenElement) {
+        if (docEl.requestFullscreen) {
+          docEl.requestFullscreen().catch(() => {
+            setShowFullscreenModal(true);
+          });
+        } else if (docEl.webkitRequestFullscreen) {
+          docEl.webkitRequestFullscreen();
+        } else if (docEl.mozRequestFullScreen) {
+          docEl.mozRequestFullScreen();
+        } else if (docEl.msRequestFullscreen) {
+          docEl.msRequestFullscreen();
+        } else {
+          setShowFullscreenModal(true);
+        }
+      } else {
+        if (doc.exitFullscreen) {
+          doc.exitFullscreen().catch(() => {});
+        } else if (doc.webkitExitFullscreen) {
+          doc.webkitExitFullscreen();
+        } else if (doc.mozCancelFullScreen) {
+          doc.mozCancelFullScreen();
+        } else if (doc.msExitFullscreen) {
+          doc.msExitFullscreen();
+        }
+      }
+    } catch (e) {
+      console.warn('Fullscreen error:', e);
+      setShowFullscreenModal(true);
+    }
+  };
+
+  // Listen for browser fullscreen changes
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const doc = document as any;
+      setIsFullscreen(Boolean(doc.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement));
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+    document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+      document.removeEventListener('mozfullscreenchange', handleFullscreenChange);
+      document.removeEventListener('MSFullscreenChange', handleFullscreenChange);
+    };
+  }, []);
 
   // Sync back to storage on updates
   const handleUpdateCash = (newTx: Transaction[], newAccs: BankAccount[]) => {
@@ -195,10 +284,10 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-800 flex flex-col font-sans selection:bg-emerald-500 selection:text-white">
+    <div className="min-h-[100dvh] h-[100dvh] bg-slate-100 text-slate-800 flex flex-col font-sans selection:bg-emerald-500 selection:text-white overflow-hidden">
       {/* 1. TV DIGITAL DISPLAY MODE */}
       {currentMode === 'tv' && (
-        <div className="relative flex-1 bg-slate-950 text-slate-100">
+        <div className="relative flex-1 min-h-[100dvh] h-[100dvh] bg-slate-950 text-slate-100 overflow-hidden">
           <TvDigitalDisplay
             profile={profile}
             accounts={accounts}
@@ -223,7 +312,7 @@ export default function App() {
 
       {/* 2. ADMIN DASHBOARD MODE (Sidebar Layout Matching Screenshot) */}
       {currentMode === 'admin' && currentUser && (
-        <div className="flex-1 flex h-screen overflow-hidden bg-slate-100">
+        <div className="flex-1 flex h-[100dvh] overflow-hidden bg-slate-100">
           {/* DESKTOP SIDEBAR (Matches IMG_20260919_085123.jpg) */}
           <div className="hidden md:block h-full shrink-0">
             <Sidebar
@@ -235,6 +324,9 @@ export default function App() {
               onOpenSettings={handleOpenSettings}
               onOpenTv={() => setCurrentMode('tv')}
               onLogout={handleLogout}
+              onOpenFullscreenGuide={() => setShowFullscreenModal(true)}
+              onToggleFullscreen={toggleFullscreen}
+              isFullscreen={isFullscreen}
             />
           </div>
 
@@ -265,6 +357,9 @@ export default function App() {
                   }}
                   onLogout={handleLogout}
                   onCloseMobile={() => setMobileMenuOpen(false)}
+                  onOpenFullscreenGuide={() => setShowFullscreenModal(true)}
+                  onToggleFullscreen={toggleFullscreen}
+                  isFullscreen={isFullscreen}
                 />
               </div>
             </div>
@@ -295,7 +390,36 @@ export default function App() {
               </div>
 
               {/* Right Action Buttons */}
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-2 sm:gap-2.5">
+                {/* Fullscreen Mobile 1-Touch Toggle & Guide */}
+                <div className="flex items-center bg-emerald-50 border border-emerald-200 rounded-xl p-0.5 shadow-xs">
+                  <button
+                    onClick={toggleFullscreen}
+                    className="px-2.5 sm:px-3 py-1 text-emerald-800 text-xs font-bold flex items-center gap-1.5 hover:bg-emerald-100 rounded-lg transition-all"
+                    title={isFullscreen ? 'Kembali dari Layar Penuh' : 'Sentuh untuk Layar Penuh HP'}
+                  >
+                    {isFullscreen ? (
+                      <Minimize2 className="w-3.5 h-3.5 text-emerald-700" />
+                    ) : (
+                      <Maximize2 className="w-3.5 h-3.5 text-emerald-700" />
+                    )}
+                    <span className="hidden sm:inline">
+                      {isFullscreen ? 'Keluar Full' : 'Layar Penuh HP'}
+                    </span>
+                    <span className="sm:hidden text-[11px]">
+                      {isFullscreen ? 'Normal' : 'Full Layar'}
+                    </span>
+                  </button>
+
+                  <button
+                    onClick={() => setShowFullscreenModal(true)}
+                    className="p-1 hover:bg-emerald-200/60 text-emerald-700 rounded-lg transition-colors"
+                    title="Petunjuk Pasang ke Layar Utama (PWA / Full Screen)"
+                  >
+                    <Smartphone className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
                 {/* Google Drive Status Pill */}
                 <span className="hidden lg:flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold border border-emerald-200 shadow-xs">
                   <Cloud className="w-3.5 h-3.5 text-emerald-600" />
@@ -490,56 +614,72 @@ export default function App() {
             </main>
 
             {/* Mobile Bottom Navigation Bar (Edge-to-Edge Sticky/Fixed) */}
-            <nav className="no-print md:hidden shrink-0 w-full bg-white/95 backdrop-blur-md border-t border-slate-200/90 py-1.5 px-2 flex items-center justify-around gap-1 z-30 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] sticky bottom-0">
+            <nav className="no-print md:hidden shrink-0 w-full bg-white/95 backdrop-blur-md border-t border-slate-200/90 py-1.5 px-2 pb-[max(0.375rem,env(safe-area-inset-bottom))] flex items-center justify-around gap-1 z-30 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] sticky bottom-0">
               <button
                 onClick={() => setAdminTab('dashboard')}
-                className={`flex-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-xl text-[10px] font-semibold transition-all ${
+                className={`flex-1 flex flex-col items-center justify-center py-1 px-0.5 rounded-xl text-[9px] font-semibold transition-all ${
                   adminTab === 'dashboard'
                     ? 'text-emerald-700 bg-emerald-50 font-bold'
                     : 'text-slate-500 hover:text-slate-800'
                 }`}
               >
-                <Home className="w-5 h-5 mb-0.5" />
-                <span>Dashboard</span>
+                <Home className="w-4 h-4 mb-0.5" />
+                <span>Home</span>
               </button>
               <button
                 onClick={() => setAdminTab('riwayat-kas')}
-                className={`flex-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-xl text-[10px] font-semibold transition-all ${
+                className={`flex-1 flex flex-col items-center justify-center py-1 px-0.5 rounded-xl text-[9px] font-semibold transition-all ${
                   adminTab === 'riwayat-kas'
                     ? 'text-emerald-700 bg-emerald-50 font-bold'
                     : 'text-slate-500 hover:text-slate-800'
                 }`}
               >
-                <Wallet className="w-5 h-5 mb-0.5" />
+                <Wallet className="w-4 h-4 mb-0.5" />
                 <span>Kas</span>
               </button>
               <button
                 onClick={() => setAdminTab('kelola-rekening')}
-                className={`flex-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-xl text-[10px] font-semibold transition-all ${
+                className={`flex-1 flex flex-col items-center justify-center py-1 px-0.5 rounded-xl text-[9px] font-semibold transition-all ${
                   adminTab === 'kelola-rekening' || adminTab.startsWith('rekening-')
                     ? 'text-emerald-700 bg-emerald-50 font-bold'
                     : 'text-slate-500 hover:text-slate-800'
                 }`}
               >
-                <CreditCard className="w-5 h-5 mb-0.5" />
+                <CreditCard className="w-4 h-4 mb-0.5" />
                 <span>Rekening</span>
               </button>
               <button
                 onClick={() => setAdminTab('jadwal')}
-                className={`flex-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-xl text-[10px] font-semibold transition-all ${
+                className={`flex-1 flex flex-col items-center justify-center py-1 px-0.5 rounded-xl text-[9px] font-semibold transition-all ${
                   adminTab === 'jadwal'
                     ? 'text-emerald-700 bg-emerald-50 font-bold'
                     : 'text-slate-500 hover:text-slate-800'
                 }`}
               >
-                <Calendar className="w-5 h-5 mb-0.5" />
+                <Calendar className="w-4 h-4 mb-0.5" />
                 <span>Jadwal</span>
               </button>
               <button
-                onClick={() => setMobileMenuOpen(true)}
-                className="flex-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-xl text-[10px] font-semibold text-slate-500 hover:text-slate-800 transition-all"
+                onClick={toggleFullscreen}
+                className={`flex-1 flex flex-col items-center justify-center py-1 px-0.5 rounded-xl text-[9px] font-semibold transition-all ${
+                  isFullscreen
+                    ? 'text-emerald-700 bg-emerald-50 font-bold'
+                    : 'text-emerald-600 hover:bg-emerald-50'
+                }`}
+                title={isFullscreen ? 'Keluar Fullscreen' : 'Layar Penuh HP'}
               >
-                <Menu className="w-5 h-5 mb-0.5" />
+                {isFullscreen ? (
+                  <Minimize2 className="w-4 h-4 mb-0.5 text-emerald-700" />
+                ) : (
+                  <Maximize2 className="w-4 h-4 mb-0.5 text-emerald-600" />
+                )}
+                <span>{isFullscreen ? 'Normal' : 'Full Layar'}</span>
+              </button>
+              <button
+                onClick={() => setMobileMenuOpen(true)}
+                className="flex-1 flex flex-col items-center justify-center py-1 px-0.5 rounded-xl text-[9px] font-semibold text-slate-500 hover:text-slate-800 transition-all"
+              >
+                <Menu className="w-4 h-4 mb-0.5" />
                 <span>Menu</span>
               </button>
             </nav>
@@ -591,6 +731,16 @@ export default function App() {
           setShowLogoutConfirm(false);
         }}
         onClose={() => setShowLogoutConfirm(false)}
+      />
+
+      {/* PANDUAN & TOGGLE LAYAR PENUH HP MODAL */}
+      <FullscreenGuideModal
+        isOpen={showFullscreenModal}
+        onClose={() => setShowFullscreenModal(false)}
+        isFullscreen={isFullscreen}
+        onToggleFullscreen={toggleFullscreen}
+        canInstall={Boolean(deferredPrompt)}
+        onInstall={handleInstallApp}
       />
     </div>
   );

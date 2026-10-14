@@ -1,0 +1,21 @@
+{
+  "id": "/",
+  "name": "Sistem Kas & Mading Digital Masjid",
+  "short_name": "Kas Masjid",
+  "description": "Aplikasi manajemen kas masjid transparan, aman, dan mading TV digital masjid.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["fullscreen", "standalone", "window-controls-overlay"],
+  "orientation": "any",
+  "background_color": "#0f172a",
+  "theme_color": "#059669",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
