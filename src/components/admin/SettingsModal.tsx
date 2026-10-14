@@ -199,6 +199,23 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     setTimeout(() => setPengurusSaveMsg(null), 4000);
   };
 
+  const handleClearAllPengurusNames = () => {
+    setKetua('');
+    setWakilKetua('');
+    setBendahara('');
+    setBendahara2('');
+    setSekretaris('');
+    setSekretaris2('');
+    setSieKeamanan('');
+    setSiePerlengkapan('');
+    setSieDakwah('');
+    setSieSosial('');
+    setMarbot('');
+    setPenasihat('');
+    setCustomOfficers([]);
+    setPengurusSaveMsg('Semua nama pengurus telah dikosongkan. Klik "Simpan Susunan Pengurus DKM" untuk menerapkan.');
+  };
+
   const handleAddCustomOfficer = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newRoleTitle.trim() || !newOfficerName.trim()) return;
@@ -730,13 +747,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-slate-400 font-medium mb-1">Ketua Takmir / DKM *</label>
+                      <label className="block text-slate-400 font-medium mb-1">Ketua Takmir / DKM</label>
                       <input
                         type="text"
-                        required
                         value={ketua}
                         onChange={(e) => setKetua(e.target.value)}
-                        placeholder="Contoh: H. Ahmad Syukri, M.Ag"
+                        placeholder="Nama Ketua Takmir"
                         className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-100 font-semibold focus:outline-none focus:border-emerald-500"
                       />
                     </div>
@@ -746,7 +762,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         type="text"
                         value={wakilKetua}
                         onChange={(e) => setWakilKetua(e.target.value)}
-                        placeholder="Contoh: Ust. H. Ridwan Kamil"
+                        placeholder="Nama Wakil Ketua Takmir"
                         className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-100 focus:outline-none focus:border-emerald-500"
                       />
                     </div>
@@ -761,13 +777,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-slate-400 font-medium mb-1">Bendahara 1 (Utama) *</label>
+                      <label className="block text-slate-400 font-medium mb-1">Bendahara 1 (Utama)</label>
                       <input
                         type="text"
-                        required
                         value={bendahara}
                         onChange={(e) => setBendahara(e.target.value)}
-                        placeholder="Contoh: H. M. Ridwan, S.E"
+                        placeholder="Nama Bendahara 1"
                         className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-100 font-semibold focus:outline-none focus:border-emerald-500"
                       />
                     </div>
@@ -777,7 +792,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         type="text"
                         value={bendahara2}
                         onChange={(e) => setBendahara2(e.target.value)}
-                        placeholder="Contoh: Bpk. Syaiful Bahri"
+                        placeholder="Nama Bendahara 2"
                         className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-100 focus:outline-none focus:border-emerald-500"
                       />
                     </div>
@@ -792,13 +807,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-slate-400 font-medium mb-1">Sekretaris 1 (Utama) *</label>
+                      <label className="block text-slate-400 font-medium mb-1">Sekretaris 1 (Utama)</label>
                       <input
                         type="text"
-                        required
                         value={sekretaris}
                         onChange={(e) => setSekretaris(e.target.value)}
-                        placeholder="Contoh: Ust. Farhan Al-Faruq"
+                        placeholder="Nama Sekretaris 1"
                         className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-100 font-semibold focus:outline-none focus:border-emerald-500"
                       />
                     </div>
@@ -808,7 +822,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         type="text"
                         value={sekretaris2}
                         onChange={(e) => setSekretaris2(e.target.value)}
-                        placeholder="Contoh: Sdr. Muhammad Zaki"
+                        placeholder="Nama Sekretaris 2"
                         className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-100 focus:outline-none focus:border-emerald-500"
                       />
                     </div>
@@ -828,7 +842,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         type="text"
                         value={sieKeamanan}
                         onChange={(e) => setSieKeamanan(e.target.value)}
-                        placeholder="Contoh: Bpk. Bambang Sutrisno"
+                        placeholder="Nama Sie Keamanan"
                         className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-100 focus:outline-none focus:border-emerald-500"
                       />
                     </div>
@@ -838,7 +852,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         type="text"
                         value={siePerlengkapan}
                         onChange={(e) => setSiePerlengkapan(e.target.value)}
-                        placeholder="Contoh: Bpk. Haryono"
+                        placeholder="Nama Sie Perlengkapan"
                         className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-100 focus:outline-none focus:border-emerald-500"
                       />
                     </div>
@@ -848,7 +862,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         type="text"
                         value={sieDakwah}
                         onChange={(e) => setSieDakwah(e.target.value)}
-                        placeholder="Contoh: Ust. Ahmad Fauzi"
+                        placeholder="Nama Sie Dakwah"
                         className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-100 focus:outline-none focus:border-emerald-500"
                       />
                     </div>
@@ -858,7 +872,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         type="text"
                         value={sieSosial}
                         onChange={(e) => setSieSosial(e.target.value)}
-                        placeholder="Contoh: Bpk. Dedi Suhendar"
+                        placeholder="Nama Sie Sosial"
                         className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-100 focus:outline-none focus:border-emerald-500"
                       />
                     </div>
@@ -868,7 +882,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         type="text"
                         value={marbot}
                         onChange={(e) => setMarbot(e.target.value)}
-                        placeholder="Contoh: Kang Asep & Pak Supri"
+                        placeholder="Nama Marbot / Petugas Kebersihan"
                         className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-100 focus:outline-none focus:border-emerald-500"
                       />
                     </div>
@@ -878,7 +892,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         type="text"
                         value={penasihat}
                         onChange={(e) => setPenasihat(e.target.value)}
-                        placeholder="Contoh: Prof. Dr. KH. Abdullah Gymnastiar"
+                        placeholder="Nama Dewan Penasihat"
                         className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-100 focus:outline-none focus:border-emerald-500"
                       />
                     </div>
@@ -961,7 +975,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   </div>
                 </div>
 
-                <div className="pt-2 flex justify-end gap-3">
+                <div className="pt-2 flex flex-wrap items-center justify-between gap-3 border-t border-slate-800">
+                  <button
+                    type="button"
+                    onClick={handleClearAllPengurusNames}
+                    className="px-4 py-2.5 rounded-xl bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800/60 text-rose-300 font-semibold flex items-center gap-2 transition-all text-xs"
+                    title="Kosongkan seluruh nama pengurus DKM"
+                  >
+                    <Trash2 className="w-4 h-4 text-rose-400" />
+                    <span>Kosongkan Semua Nama Pengurus</span>
+                  </button>
+
                   <button
                     type="submit"
                     className="px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold flex items-center gap-2 shadow"

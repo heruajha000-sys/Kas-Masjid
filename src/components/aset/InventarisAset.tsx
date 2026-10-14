@@ -1202,7 +1202,7 @@ export const InventarisAset: React.FC<InventarisAsetProps> = ({
                 <input
                   type="text"
                   required
-                  placeholder="Contoh: Pak Bambang (Warga RT 02)"
+                  placeholder="Nama jamaah / warga peminjam"
                   value={borrowerName}
                   onChange={(e) => setBorrowerName(e.target.value)}
                   className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 focus:outline-none focus:border-emerald-500"

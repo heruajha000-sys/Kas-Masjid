@@ -61,10 +61,11 @@ export const ResetDataManager: React.FC<ResetDataManagerProps> = ({
   const [resetLoans, setResetLoans] = useState(false);
   const [resetAuditLogs, setResetAuditLogs] = useState(false);
   const [resetCategories, setResetCategories] = useState(false);
+  const [resetAllNames, setResetAllNames] = useState(false);
 
   // Confirmation modal state
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [resetMode, setResetMode] = useState<'selected' | 'all_financial' | 'factory_fresh'>('selected');
+  const [resetMode, setResetMode] = useState<'selected' | 'all_financial' | 'factory_fresh' | 'all_names'>('selected');
   const [confirmInput, setConfirmInput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -97,7 +98,8 @@ export const ResetDataManager: React.FC<ResetDataManagerProps> = ({
       !resetDuties &&
       !resetLoans &&
       !resetAuditLogs &&
-      !resetCategories
+      !resetCategories &&
+      !resetAllNames
     ) {
       setErrorMessage('Pilih minimal satu kategori data yang ingin direset.');
       return;
@@ -112,6 +114,14 @@ export const ResetDataManager: React.FC<ResetDataManagerProps> = ({
   const openConfirmFinancialOnly = () => {
     setErrorMessage(null);
     setResetMode('all_financial');
+    setConfirmInput('');
+    setShowConfirmModal(true);
+  };
+
+  // Open confirmation for clearing all names
+  const openConfirmAllNamesOnly = () => {
+    setErrorMessage(null);
+    setResetMode('all_names');
     setConfirmInput('');
     setShowConfirmModal(true);
   };
@@ -138,6 +148,9 @@ export const ResetDataManager: React.FC<ResetDataManagerProps> = ({
         if (resetMode === 'all_financial') {
           appStorage.resetFinancialData(true, currentUser.name, currentUser.role);
           setSuccessMessage('Semua data keuangan dan mutasi kas berhasil dihapus. Saldo kas kini Rp 0.');
+        } else if (resetMode === 'all_names') {
+          appStorage.resetAllNames(currentUser.name, currentUser.role);
+          setSuccessMessage('Semua nama pengurus, nama petugas, dan nama pemegang rekening berhasil dikosongkan.');
         } else if (resetMode === 'factory_fresh') {
           appStorage.resetSelectedData(
             {
@@ -154,6 +167,9 @@ export const ResetDataManager: React.FC<ResetDataManagerProps> = ({
             currentUser.name,
             currentUser.role
           );
+          if (resetAllNames) {
+            appStorage.resetAllNames(currentUser.name, currentUser.role);
+          }
           setSuccessMessage(
             'Sistem telah dibersihkan sepenuhnya untuk pembukuan baru. Identitas masjid tetap tersimpan rapi.'
           );
@@ -173,6 +189,9 @@ export const ResetDataManager: React.FC<ResetDataManagerProps> = ({
             currentUser.name,
             currentUser.role
           );
+          if (resetAllNames) {
+            appStorage.resetAllNames(currentUser.name, currentUser.role);
+          }
           setSuccessMessage('Data terpilih berhasil dibersihkan dan diperbarui.');
         }
 
@@ -320,9 +339,9 @@ export const ResetDataManager: React.FC<ResetDataManagerProps> = ({
       </div>
 
       {/* Quick Action Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Quick Option 1: Reset Keuangan Saja */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs hover:border-rose-300 transition-all space-y-3 flex flex-col justify-between">
+        <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs hover:border-amber-300 transition-all space-y-3 flex flex-col justify-between">
           <div className="space-y-2">
             <div className="flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
@@ -330,15 +349,15 @@ export const ResetDataManager: React.FC<ResetDataManagerProps> = ({
               </div>
               <div>
                 <h3 className="font-bold text-sm text-slate-900">
-                  Reset Semua Keuangan & Kas Saja
+                  Reset Keuangan & Kas
                 </h3>
                 <span className="text-[11px] text-slate-400">
-                  Menghapus mutasi kas dan mengosongkan saldo kas
+                  Mutasi kas dan saldo kas Rp 0
                 </span>
               </div>
             </div>
             <p className="text-xs text-slate-600 leading-relaxed">
-              Tindakan ini akan menghapus <strong>{transactions.length} catatan kas masuk & keluar</strong>, serta mengatur ulang saldo di seluruh buku kas ({accounts.map((a) => a.name).join(', ')}) menjadi <strong>Rp 0</strong>. Jadwal, rapat, dan data masjid lainnya tetap aman.
+              Tindakan ini menghapus <strong>{transactions.length} catatan transaksi kas</strong>, serta mengatur ulang saldo di seluruh buku kas menjadi <strong>Rp 0</strong>.
             </p>
           </div>
 
@@ -347,37 +366,67 @@ export const ResetDataManager: React.FC<ResetDataManagerProps> = ({
             className="w-full py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-xs"
           >
             <Wallet className="w-4 h-4" />
-            <span>Hapus Semua Keuangan (Nol-kan Kas)</span>
+            <span>Nol-kan Saldo Kas</span>
           </button>
         </div>
 
-        {/* Quick Option 2: Reset Bersih Total (Fresh Start) */}
+        {/* Quick Option 2: Kosongkan Semua Nama */}
         <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs hover:border-rose-300 transition-all space-y-3 flex flex-col justify-between">
           <div className="space-y-2">
             <div className="flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center font-bold">
-                <RefreshCw className="w-5 h-5" />
+                <Users className="w-5 h-5" />
               </div>
               <div>
                 <h3 className="font-bold text-sm text-slate-900">
-                  Mulai Pembukuan Bersih (Fresh Start)
+                  Kosongkan Semua Nama
                 </h3>
                 <span className="text-[11px] text-slate-400">
-                  Bersihkan semua transaksi dan data contoh sekaligus
+                  Nama pengurus, petugas & rekening
                 </span>
               </div>
             </div>
             <p className="text-xs text-slate-600 leading-relaxed">
-              Mengosongkan semua data transaksi keuangan (saldo Rp 0), daftar hadir rapat, peserta qurban, dan riwayat peminjaman. <strong>Identitas masjid ({profile.name}) dan akun pengurus tetap tersimpan</strong>.
+              Mengosongkan nama Ketua Takmir, Bendahara, Sekretaris, Sie-Seksi, Marbot, Dewan Penasihat, dan nama pemegang buku kas.
+            </p>
+          </div>
+
+          <button
+            onClick={openConfirmAllNamesOnly}
+            className="w-full py-2.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-xs"
+          >
+            <Users className="w-4 h-4" />
+            <span>Kosongkan Semua Nama</span>
+          </button>
+        </div>
+
+        {/* Quick Option 3: Reset Bersih Total (Fresh Start) */}
+        <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs hover:border-rose-300 transition-all space-y-3 flex flex-col justify-between">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center font-bold">
+                <RefreshCw className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-bold text-sm text-slate-900">
+                  Mulai Pembukuan Baru
+                </h3>
+                <span className="text-[11px] text-slate-400">
+                  Bersihkan transaksi & agenda
+                </span>
+              </div>
+            </div>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Mengosongkan transaksi kas (saldo Rp 0), absensi rapat, peserta qurban, dan riwayat peminjaman aset.
             </p>
           </div>
 
           <button
             onClick={openConfirmFactoryFresh}
-            className="w-full py-2.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-xs"
+            className="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-black text-white text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-xs"
           >
             <Trash2 className="w-4 h-4" />
-            <span>Reset Total & Mulai Buku Kas Baru</span>
+            <span>Reset Data Pembukuan</span>
           </button>
         </div>
       </div>
@@ -573,6 +622,24 @@ export const ResetDataManager: React.FC<ResetDataManagerProps> = ({
               </span>
             </div>
           </label>
+
+          {/* Item 9: Kosongkan Seluruh Nama Pengurus & Petugas */}
+          <label className="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 hover:border-emerald-300 hover:bg-slate-50/60 cursor-pointer transition-all">
+            <input
+              type="checkbox"
+              checked={resetAllNames}
+              onChange={(e) => setResetAllNames(e.target.checked)}
+              className="mt-0.5 rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4"
+            />
+            <div className="text-xs">
+              <strong className="block text-slate-900 font-bold">
+                Kosongkan Seluruh Nama Pengurus & Petugas DKM
+              </strong>
+              <span className="text-slate-500 text-[11px]">
+                Mengosongkan nama Ketua, Bendahara, Sekretaris, Sie-Seksi, Marbot, Penasihat, dan nama pemegang rekening.
+              </span>
+            </div>
+          </label>
         </div>
 
         <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-100">
@@ -619,6 +686,11 @@ export const ResetDataManager: React.FC<ResetDataManagerProps> = ({
                   • <strong>Semua {transactions.length} transaksi kas</strong> akan dihapus dan seluruh saldo rekening diset menjadi <strong>Rp 0</strong>.
                 </p>
               )}
+              {resetMode === 'all_names' && (
+                <p>
+                  • <strong>Semua nama pengurus, nama petugas, dan nama pemilik rekening</strong> akan dikosongkan.
+                </p>
+              )}
               {resetMode === 'factory_fresh' && (
                 <p>
                   • <strong>Semua transaksi, saldo, rapat, qurban, dan riwayat</strong> akan dibersihkan ke kondisi awal.
@@ -629,7 +701,9 @@ export const ResetDataManager: React.FC<ResetDataManagerProps> = ({
                   • Item yang dipilih ({resetCash ? 'Kas, ' : ''}
                   {zeroBalances ? 'Saldo Rp 0, ' : ''}
                   {resetMeetings ? 'Rapat, ' : ''}
-                  {resetQurban ? 'Qurban' : ''}) akan dibersihkan.
+                  {resetQurban ? 'Qurban, ' : ''}
+                  {resetAllNames ? 'Nama Pengurus, ' : ''}
+                  {resetAuditLogs ? 'Audit' : ''}) akan dibersihkan.
                 </p>
               )}
             </div>

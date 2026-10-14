@@ -1121,7 +1121,7 @@ export const KasManager: React.FC<KasManagerProps> = ({
                 <label className="block text-slate-400 font-medium mb-1">Nama Donatur / Jamaah</label>
                 <input
                   type="text"
-                  placeholder="Contoh: H. Ahmad Subarjo / Hamba Allah"
+                  placeholder="Nama donatur / Hamba Allah"
                   value={waDonorName}
                   onChange={(e) => setWaDonorName(e.target.value)}
                   className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 focus:outline-none focus:border-emerald-500"

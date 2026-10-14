@@ -469,7 +469,7 @@ export const TvDigitalDisplay: React.FC<TvDigitalDisplayProps> = ({
 
             <div className="mt-4 pt-3 border-t border-slate-800/60 flex items-center justify-between text-xs">
               <span className={isTvDarkMode ? 'text-slate-400' : 'text-slate-500'}>
-                Bendahara: <strong className="text-slate-200">{profile.bendahara}</strong>
+                Bendahara: <strong className="text-slate-200">{profile.bendahara || '-'}</strong>
               </span>
               <span className="text-emerald-500 font-medium">Audit Terverifikasi ✓</span>
             </div>

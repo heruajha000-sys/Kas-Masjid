@@ -323,7 +323,7 @@ export const JadwalPetugas: React.FC<JadwalPetugasProps> = ({
                 <label className="block text-slate-400 font-medium mb-1">Khatib / Penceramah</label>
                 <input
                   type="text"
-                  placeholder="Contoh: Prof. Dr. KH. Syukron Ma'mun"
+                  placeholder="Nama Khatib / Penceramah"
                   value={type === 'Jumat' ? khatib : penceramah}
                   onChange={(e) => {
                     if (type === 'Jumat') setKhatib(e.target.value);
@@ -339,7 +339,7 @@ export const JadwalPetugas: React.FC<JadwalPetugasProps> = ({
                   <input
                     type="text"
                     required
-                    placeholder="Contoh: Ustadz Hafizh Al-Bantani"
+                    placeholder="Nama Imam Sholat"
                     value={imam}
                     onChange={(e) => setImam(e.target.value)}
                     className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 focus:outline-none focus:border-emerald-500"
@@ -349,7 +349,7 @@ export const JadwalPetugas: React.FC<JadwalPetugasProps> = ({
                   <label className="block text-slate-400 font-medium mb-1">Muadzin / Bilal</label>
                   <input
                     type="text"
-                    placeholder="Contoh: Ust. Bilal Mansur"
+                    placeholder="Nama Muadzin / Bilal"
                     value={muadzin}
                     onChange={(e) => setMuadzin(e.target.value)}
                     className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 focus:outline-none focus:border-emerald-500"

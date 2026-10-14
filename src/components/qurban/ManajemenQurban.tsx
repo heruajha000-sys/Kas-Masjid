@@ -597,7 +597,7 @@ export const ManajemenQurban: React.FC<ManajemenQurbanProps> = ({
                 <input
                   type="text"
                   required
-                  placeholder="Contoh: H. Bambang Sulistyo & Keluarga"
+                  placeholder="Nama shohibul qurban / keluarga"
                   value={pName}
                   onChange={(e) => setPName(e.target.value)}
                   className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 focus:outline-none focus:border-emerald-500"

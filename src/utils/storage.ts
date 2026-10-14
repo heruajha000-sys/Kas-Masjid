@@ -35,34 +35,34 @@ export const DEFAULT_PROFILE: MosqueProfile = {
   city: 'Jakarta Pusat',
   province: 'DKI Jakarta',
   postalCode: '10340',
-  phone: '0812-3456-7890',
-  email: 'takmir.nurulilmi@gmail.com',
+  phone: '',
+  email: '',
   slogan: 'Pusat Ibadah, Kebajikan, dan Pembinaan Ummat',
   logoUrl: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=150&auto=format&fit=crop&q=80',
   qrisUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=00020101021126590014ID.LINKAJA.WWW011893600911002150000002151234567890123455204581253033605802ID5918MASJID+NURUL+ILMI6013JAKARTA+PUSAT61051034062070703A016304ABCD',
   qrisNmid: 'ID1020304050607',
-  ketuaTakmir: 'H. Bambang Sulistyo, M.Ag',
-  wakilKetua: 'Drs. H. Syamsudin Mansyur',
-  bendahara: 'Ustadz Ahmad Fauzi, S.E.',
-  bendahara2: 'H. M. Taufik Hidayat, Ak.',
-  sekretaris: 'Muhammad Ridwan, S.Kom',
-  sekretaris2: 'Agus Salim, S.Pd',
-  sieKeamanan: 'Kapten (Purn) Sudirman / Bpk. Yanto',
-  siePerlengkapan: 'Pak Joko Subroto & Tim Sarpras',
-  sieDakwah: 'Ustadz Dr. H. Khalid Mubarok, M.A.',
-  sieSosial: 'Hj. Maryam & Bpk. Hendra Wijaya',
-  marbot: 'Pak Slamet & Mas Wahyu',
-  penasihat: 'Prof. Dr. KH. Nasaruddin Ilyas',
-  customOfficers: [
-    { id: 'off-1', roleTitle: 'Sie Humas & Media Digital', name: 'Rian Pratama, S.I.Kom', phone: '0812-9988-7766' },
-    { id: 'off-2', roleTitle: 'Sie Remaja Masjid (RISMA)', name: 'Kang Ilham Maulana', phone: '0813-1122-3344' },
-  ],
+  ketuaTakmir: '',
+  wakilKetua: '',
+  bendahara: '',
+  bendahara2: '',
+  sekretaris: '',
+  sekretaris2: '',
+  sieKeamanan: '',
+  siePerlengkapan: '',
+  sieDakwah: '',
+  siePeribadatan: '',
+  sieSosial: '',
+  sieRemaja: '',
+  sieHumas: '',
+  marbot: '',
+  penasihat: '',
+  customOfficers: [],
   runningTexts: [
-    'Selamat datang di Masjid Nurul Ilmi. Luruskan dan rapatkan shaf sholat demi kesempurnaan berjamaah.',
-    'Kajian Rutin Ba\'da Maghrib: Tafsir Ibnu Katsir setiap hari Selasa bersama Ustadz Dr. H. Khalid Mubarok, M.A.',
+    'Selamat datang di Masjid. Luruskan dan rapatkan shaf sholat demi kesempurnaan berjamaah.',
+    'Kajian Rutin Ba\'da Maghrib: Tafsir Al-Qur\'an dan Hadits tematik terbuka untuk umum setiap hari Selasa.',
     'Pemberitahuan: Gerakan Infaq Beras Santri & Santunan Anak Yatim rutin dibuka setiap hari Jumat.',
     'Mohon menonaktifkan atau menyenyapkan nada dering HP selama berada di dalam ruang utama sholat.',
-    'Rekening Resmi Donasi Operasional & Pembangunan BSI: 712-345-6789 a.n. Kas Masjid Nurul Ilmi.'
+    'Rekening Resmi Donasi Operasional & Pembangunan telah dibuka dan tercatat transparan.'
   ],
   iqomahMinutes: {
     subuh: 15,
@@ -79,50 +79,50 @@ export const DEFAULT_PROFILE: MosqueProfile = {
 export const DEFAULT_USERS: UserAccount[] = [
   {
     id: 'user-admin',
-    name: 'Super Admin',
+    name: '',
     role: 'admin',
-    email: 'admin.nurulilmi@gmail.com',
-    phone: '081234567890',
+    email: 'admin@masjid.id',
+    phone: '',
     pin: '1234',
   },
   {
     id: 'user-bendahara',
-    name: 'Ustadz Ahmad Fauzi, S.E.',
+    name: '',
     role: 'bendahara',
-    email: 'bendahara.masjid@gmail.com',
-    phone: '081298765432',
+    email: 'bendahara@masjid.id',
+    phone: '',
     pin: '1234',
   },
   {
     id: 'user-sekretaris',
-    name: 'Muhammad Ridwan, S.Kom',
+    name: '',
     role: 'sekretaris',
-    email: 'sekretaris.masjid@gmail.com',
-    phone: '081387654321',
+    email: 'sekretaris@masjid.id',
+    phone: '',
     pin: '1234',
   },
   {
     id: 'user-ketua',
-    name: 'H. Bambang Sulistyo, M.Ag',
+    name: '',
     role: 'ketua_takmir',
-    email: 'ketua.masjid@gmail.com',
-    phone: '081122334455',
+    email: 'ketua@masjid.id',
+    phone: '',
     pin: '1234',
   },
   {
     id: 'user-operator',
-    name: 'Fikri Haikal',
+    name: '',
     role: 'operator_tv',
-    email: 'operator.tv@gmail.com',
-    phone: '081555667788',
+    email: 'operator@masjid.id',
+    phone: '',
     pin: '1234',
   },
   {
     id: 'user-marbot',
-    name: 'Pak Slamet Riyadi',
+    name: '',
     role: 'marbot',
-    email: 'marbot.masjid@gmail.com',
-    phone: '081999887766',
+    email: 'marbot@masjid.id',
+    phone: '',
     pin: '1234',
   },
 ];
@@ -132,8 +132,8 @@ export const DEFAULT_ACCOUNTS: BankAccount[] = [
     id: 'acc-utama',
     name: 'Rekening Utama',
     bankName: 'Bank Syariah Indonesia (BSI)',
-    accountNumber: '7123456789',
-    holderName: 'DKM Masjid Nurul Ilmi',
+    accountNumber: '',
+    holderName: '',
     balance: 0,
     isDefault: true,
     color: '#10b981', // emerald
@@ -142,8 +142,8 @@ export const DEFAULT_ACCOUNTS: BankAccount[] = [
     id: 'acc-renovasi',
     name: 'Pembangunan dan Renovasi',
     bankName: 'Bank Syariah Indonesia (BSI)',
-    accountNumber: '7199887766',
-    holderName: 'Panitia Pembangunan Nurul Ilmi',
+    accountNumber: '',
+    holderName: '',
     balance: 0,
     color: '#f59e0b', // amber
   },
@@ -151,8 +151,8 @@ export const DEFAULT_ACCOUNTS: BankAccount[] = [
     id: 'acc-tunai',
     name: 'Kas Tunai Tromol',
     bankName: 'Brankas Tunai Masjid',
-    accountNumber: 'CASH-001',
-    holderName: 'Bendahara Masjid Nurul Ilmi',
+    accountNumber: '',
+    holderName: '',
     balance: 0,
     color: '#0284c7', // sky
   },
@@ -160,8 +160,8 @@ export const DEFAULT_ACCOUNTS: BankAccount[] = [
     id: 'acc-sosial',
     name: 'Kas Zakat & Santunan Dhuafa',
     bankName: 'Bank Muamalat',
-    accountNumber: '3410098765',
-    holderName: 'LAZIS Masjid Nurul Ilmi',
+    accountNumber: '',
+    holderName: '',
     balance: 0,
     color: '#8b5cf6', // purple
   },
@@ -190,11 +190,12 @@ export const DEFAULT_DRIVE_CONFIG: GoogleDriveConfig = {
   autoSync: true,
 };
 
-// Inisialisasi pengosongan seluruh data sesuai instruksi pengguna ("Kosongkan semua data")
-const CLEAR_ALL_DATA_FLAG = 'masjid_cleared_empty_v5';
+// Inisialisasi pengosongan seluruh data & nama sesuai instruksi pengguna ("Kosongkan semua nama nama yang ada di aplikasi ini")
+const CLEAR_ALL_NAMES_FLAG = 'masjid_cleared_names_v8';
 if (typeof window !== 'undefined' && window.localStorage) {
-  if (localStorage.getItem(CLEAR_ALL_DATA_FLAG) !== 'true') {
+  if (localStorage.getItem(CLEAR_ALL_NAMES_FLAG) !== 'true') {
     try {
+      // 1. Bersihkan transaksi, jadwal, absensi rapat, qurban, aset, peminjaman, log audit
       localStorage.setItem(STORAGE_KEYS.TRANSACTIONS, JSON.stringify([]));
       localStorage.setItem(STORAGE_KEYS.DUTY_SCHEDULES, JSON.stringify([]));
       localStorage.setItem(STORAGE_KEYS.MEETINGS, JSON.stringify([]));
@@ -203,12 +204,50 @@ if (typeof window !== 'undefined' && window.localStorage) {
       localStorage.setItem(STORAGE_KEYS.LOANS, JSON.stringify([]));
       localStorage.setItem(STORAGE_KEYS.AUDIT_LOGS, JSON.stringify([]));
 
-      const zeroedAccounts = DEFAULT_ACCOUNTS.map((a) => ({ ...a, balance: 0 }));
+      // 2. Kosongkan semua nama pengurus pada profil masjid
+      const rawProfile = localStorage.getItem(STORAGE_KEYS.PROFILE);
+      let pObj = rawProfile ? JSON.parse(rawProfile) : { ...DEFAULT_PROFILE };
+      pObj = {
+        ...pObj,
+        ketuaTakmir: '',
+        wakilKetua: '',
+        bendahara: '',
+        bendahara2: '',
+        sekretaris: '',
+        sekretaris2: '',
+        sieKeamanan: '',
+        siePerlengkapan: '',
+        sieDakwah: '',
+        siePeribadatan: '',
+        sieSosial: '',
+        sieRemaja: '',
+        sieHumas: '',
+        marbot: '',
+        penasihat: '',
+        customOfficers: [],
+        phone: '',
+        email: '',
+        runningTexts: DEFAULT_PROFILE.runningTexts,
+      };
+      localStorage.setItem(STORAGE_KEYS.PROFILE, JSON.stringify(pObj));
+
+      // 3. Kosongkan semua nama akun user
+      const emptyUsers = DEFAULT_USERS.map((u) => ({ ...u, name: '' }));
+      localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(emptyUsers));
+      localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(emptyUsers[0]));
+
+      // 4. Kosongkan nama pemegang rekening dan nomor rekening contoh
+      const zeroedAccounts = DEFAULT_ACCOUNTS.map((a) => ({
+        ...a,
+        holderName: '',
+        accountNumber: '',
+        balance: 0,
+      }));
       localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(zeroedAccounts));
 
-      localStorage.setItem(CLEAR_ALL_DATA_FLAG, 'true');
+      localStorage.setItem(CLEAR_ALL_NAMES_FLAG, 'true');
     } catch (e) {
-      console.error('Error emptying initial localStorage data:', e);
+      console.error('Error emptying names and data in initial localStorage:', e);
     }
   }
 }
@@ -242,6 +281,67 @@ export const appStorage = {
     if (merged.name === 'Masjid Raya Al-Ikhlas') {
       merged.name = 'Masjid Nurul Ilmi';
     }
+
+    // Pastikan tidak ada nama pengurus lama / dummy yang tersisa
+    const legacyNames = [
+      'H. Bambang Sulistyo, M.Ag',
+      'Drs. H. Syamsudin Mansyur',
+      'Ustadz Ahmad Fauzi, S.E.',
+      'H. M. Taufik Hidayat, Ak.',
+      'Muhammad Ridwan, S.Kom',
+      'Agus Salim, S.Pd',
+      'Kapten (Purn) Sudirman / Bpk. Yanto',
+      'Pak Joko Subroto & Tim Sarpras',
+      'Ustadz Dr. H. Khalid Mubarok, M.A.',
+      'Hj. Maryam & Bpk. Hendra Wijaya',
+      'Pak Slamet & Mas Wahyu',
+      'Prof. Dr. KH. Nasaruddin Ilyas',
+      'Rian Pratama, S.I.Kom',
+      'Kang Ilham Maulana',
+      'Pak Slamet Riyadi',
+      'Fikri Haikal',
+    ];
+
+    const officerKeys = [
+      'ketuaTakmir',
+      'wakilKetua',
+      'bendahara',
+      'bendahara2',
+      'sekretaris',
+      'sekretaris2',
+      'sieKeamanan',
+      'siePerlengkapan',
+      'sieDakwah',
+      'siePeribadatan',
+      'sieSosial',
+      'sieRemaja',
+      'sieHumas',
+      'marbot',
+      'penasihat',
+    ] as const;
+
+    let hasCleaned = false;
+    officerKeys.forEach((key) => {
+      if (merged[key] && legacyNames.includes(merged[key])) {
+        merged[key] = '';
+        hasCleaned = true;
+      }
+    });
+
+    if (merged.customOfficers && merged.customOfficers.length > 0) {
+      const filtered = merged.customOfficers.filter(
+        (co) => !legacyNames.includes(co.name) && co.name !== 'Rian Pratama, S.I.Kom' && co.name !== 'Kang Ilham Maulana'
+      );
+      if (filtered.length !== merged.customOfficers.length) {
+        merged.customOfficers = filtered;
+        hasCleaned = true;
+      }
+    }
+
+    if (hasCleaned) {
+      saveToStorage(STORAGE_KEYS.PROFILE, merged);
+    }
+
     if (!merged.logoUrl || merged.logoUrl.trim() === '') {
       merged.logoUrl = DEFAULT_PROFILE.logoUrl;
     }
@@ -254,20 +354,45 @@ export const appStorage = {
 
   getUsers: () => {
     const users = loadFromStorage<UserAccount[]>(STORAGE_KEYS.USERS, DEFAULT_USERS);
-    if (!users.some((u) => u.role === 'admin' || u.name === 'Super Admin')) {
-      const updated = [...DEFAULT_USERS];
-      saveToStorage(STORAGE_KEYS.USERS, updated);
-      return updated;
+    const legacyNames = [
+      'Ustadz Ahmad Fauzi, S.E.',
+      'Muhammad Ridwan, S.Kom',
+      'H. Bambang Sulistyo, M.Ag',
+      'Fikri Haikal',
+      'Pak Slamet Riyadi',
+      'Super Admin',
+    ];
+    let changed = false;
+    const sanitized = users.map((u) => {
+      if (u.name && legacyNames.includes(u.name)) {
+        changed = true;
+        return { ...u, name: '' };
+      }
+      return u;
+    });
+    if (changed || !users.some((u) => u.role === 'admin')) {
+      saveToStorage(STORAGE_KEYS.USERS, sanitized);
+      return sanitized;
     }
-    return users;
+    return sanitized;
   },
   saveUsers: (u: UserAccount[]) => saveToStorage(STORAGE_KEYS.USERS, u),
 
   getCurrentUser: (): UserAccount => {
     const cur = loadFromStorage<UserAccount>(STORAGE_KEYS.CURRENT_USER, DEFAULT_USERS[0]);
-    if (!cur || cur.name === 'Ustadz Ahmad Fauzi, S.E.' && cur.role === 'bendahara') {
-      // Default to Super Admin as requested
-      return DEFAULT_USERS[0];
+    if (!cur) return DEFAULT_USERS[0];
+    const legacyNames = [
+      'Ustadz Ahmad Fauzi, S.E.',
+      'Muhammad Ridwan, S.Kom',
+      'H. Bambang Sulistyo, M.Ag',
+      'Fikri Haikal',
+      'Pak Slamet Riyadi',
+      'Super Admin',
+    ];
+    if (cur.name && legacyNames.includes(cur.name)) {
+      const cleaned = { ...cur, name: '' };
+      saveToStorage(STORAGE_KEYS.CURRENT_USER, cleaned);
+      return cleaned;
     }
     return cur;
   },
@@ -275,14 +400,31 @@ export const appStorage = {
 
   getAccounts: () => {
     const accs = loadFromStorage<BankAccount[]>(STORAGE_KEYS.ACCOUNTS, DEFAULT_ACCOUNTS);
+    const mockHolders = [
+      'DKM Masjid Nurul Ilmi',
+      'Panitia Pembangunan Nurul Ilmi',
+      'Bendahara Masjid Nurul Ilmi',
+      'LAZIS Masjid Nurul Ilmi',
+    ];
+    let changed = false;
+    const sanitized = accs.map((a) => {
+      if (a.holderName && mockHolders.includes(a.holderName)) {
+        changed = true;
+        return { ...a, holderName: '' };
+      }
+      return a;
+    });
+    if (changed) {
+      saveToStorage(STORAGE_KEYS.ACCOUNTS, sanitized);
+    }
     // Ensure 'Rekening Utama' and 'Pembangunan dan Renovasi' are present
-    const hasUtama = accs.some((a) => a.name.toLowerCase().includes('rekening utama'));
-    const hasRenovasi = accs.some((a) => a.name.toLowerCase().includes('pembangunan'));
+    const hasUtama = sanitized.some((a) => a.name.toLowerCase().includes('rekening utama'));
+    const hasRenovasi = sanitized.some((a) => a.name.toLowerCase().includes('pembangunan'));
     if (!hasUtama || !hasRenovasi) {
       saveToStorage(STORAGE_KEYS.ACCOUNTS, DEFAULT_ACCOUNTS);
       return DEFAULT_ACCOUNTS;
     }
-    return accs;
+    return sanitized;
   },
   saveAccounts: (a: BankAccount[]) => saveToStorage(STORAGE_KEYS.ACCOUNTS, a),
 
@@ -523,6 +665,51 @@ export const appStorage = {
       isNearLimit: usagePercent > 70,
       itemBreakdown: itemBreakdown.sort((a, b) => b.sizeKB - a.sizeKB),
     };
+  },
+
+  resetAllNames: (userName = 'Pengurus', userRole: UserRole = 'admin') => {
+    const curProfile = appStorage.getProfile();
+    const clearedProfile: MosqueProfile = {
+      ...curProfile,
+      ketuaTakmir: '',
+      wakilKetua: '',
+      bendahara: '',
+      bendahara2: '',
+      sekretaris: '',
+      sekretaris2: '',
+      sieKeamanan: '',
+      siePerlengkapan: '',
+      sieDakwah: '',
+      siePeribadatan: '',
+      sieSosial: '',
+      sieRemaja: '',
+      sieHumas: '',
+      marbot: '',
+      penasihat: '',
+      customOfficers: [],
+      phone: '',
+      email: '',
+      runningTexts: DEFAULT_PROFILE.runningTexts,
+    };
+    appStorage.saveProfile(clearedProfile);
+
+    const clearedUsers = DEFAULT_USERS.map((u) => ({ ...u, name: '' }));
+    appStorage.saveUsers(clearedUsers);
+    appStorage.saveCurrentUser(clearedUsers[0]);
+
+    const currentAccs = appStorage.getAccounts();
+    const clearedAccs = currentAccs.map((a) => ({ ...a, holderName: '', accountNumber: '' }));
+    appStorage.saveAccounts(clearedAccs);
+
+    appStorage.addAuditLog({
+      userName: userName || 'Admin',
+      userRole,
+      action: 'Kosongkan Semua Nama',
+      details: 'Semua nama pengurus DKM, petugas, dan pemegang rekening telah dikosongkan',
+      category: 'sistem',
+    });
+
+    return { profile: clearedProfile, users: clearedUsers, accounts: clearedAccs };
   },
 
   resetToDefault: () => {

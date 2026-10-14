@@ -532,6 +532,18 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                   <span className="font-semibold text-slate-700 truncate ml-2 text-right">{profile.sieHumas}</span>
                 </div>
               )}
+              {profile.marbot && (
+                <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
+                  <span className="text-slate-500 font-medium">Marbot:</span>
+                  <span className="font-semibold text-slate-700 truncate ml-2 text-right">{profile.marbot}</span>
+                </div>
+              )}
+              {profile.penasihat && (
+                <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
+                  <span className="text-slate-500 font-medium">Penasihat:</span>
+                  <span className="font-semibold text-slate-700 truncate ml-2 text-right">{profile.penasihat}</span>
+                </div>
+              )}
               {profile.customOfficers && profile.customOfficers.length > 0 && (
                 <div className="pt-1 border-t border-slate-100 space-y-1">
                   {profile.customOfficers.map((co) => (

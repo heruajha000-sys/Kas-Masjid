@@ -395,7 +395,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
           <div className="min-w-0">
             <div className="text-xs font-bold text-slate-800 leading-tight truncate">
-              {currentUser?.name || 'Super Admin'}
+              {currentUser?.name && currentUser.name.trim() !== ''
+                ? currentUser.name
+                : currentUser?.role && ROLES_CONFIG[currentUser.role]
+                ? ROLES_CONFIG[currentUser.role].label
+                : 'Pengurus'}
             </div>
             <div className="flex items-center gap-1 mt-0.5">
               <span className={`px-1.5 py-0.2 rounded text-[9px] font-bold border ${

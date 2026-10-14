@@ -146,6 +146,7 @@ export default function App() {
 
   const handleRestoreData = () => {
     setProfile(appStorage.getProfile());
+    setCurrentUser(appStorage.getCurrentUser());
     setTransactions(appStorage.getTransactions());
     setAccounts(appStorage.getAccounts());
     setDuties(appStorage.getDuties());

@@ -437,7 +437,7 @@ export const KelolaRekeningManager: React.FC<KelolaRekeningManagerProps> = ({
                   <input
                     type="text"
                     required
-                    placeholder="DKM Masjid Nurul Ilmi"
+                    placeholder="Atas nama pemegang rekening"
                     value={holderName}
                     onChange={(e) => setHolderName(e.target.value)}
                     className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none"
