@@ -270,9 +270,9 @@ export default function App() {
           )}
 
           {/* MAIN CONTENT AREA */}
-          <div className="flex-1 flex flex-col h-full overflow-hidden">
-            {/* Top Bar Header */}
-            <header className="no-print bg-white border-b border-slate-200/90 px-4 sm:px-6 py-3 shrink-0 flex items-center justify-between gap-3 shadow-xs">
+          <div className="flex-1 flex flex-col h-full overflow-hidden w-full max-w-full">
+            {/* Top Bar Header (Edge-to-Edge Sticky) */}
+            <header className="no-print bg-white border-b border-slate-200/90 px-4 sm:px-6 py-3 shrink-0 flex items-center justify-between gap-3 shadow-xs sticky top-0 z-30 w-full">
               <div className="flex items-center gap-3">
                 {/* Mobile Hamburger Toggle Button */}
                 <button
@@ -487,6 +487,61 @@ export default function App() {
                 )}
               </div>
             </main>
+
+            {/* Mobile Bottom Navigation Bar (Edge-to-Edge Sticky/Fixed) */}
+            <nav className="no-print md:hidden shrink-0 w-full bg-white/95 backdrop-blur-md border-t border-slate-200/90 py-1.5 px-2 flex items-center justify-around gap-1 z-30 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] sticky bottom-0">
+              <button
+                onClick={() => setAdminTab('dashboard')}
+                className={`flex-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-xl text-[10px] font-semibold transition-all ${
+                  adminTab === 'dashboard'
+                    ? 'text-emerald-700 bg-emerald-50 font-bold'
+                    : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                <Home className="w-5 h-5 mb-0.5" />
+                <span>Dashboard</span>
+              </button>
+              <button
+                onClick={() => setAdminTab('riwayat-kas')}
+                className={`flex-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-xl text-[10px] font-semibold transition-all ${
+                  adminTab === 'riwayat-kas'
+                    ? 'text-emerald-700 bg-emerald-50 font-bold'
+                    : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                <Wallet className="w-5 h-5 mb-0.5" />
+                <span>Kas</span>
+              </button>
+              <button
+                onClick={() => setAdminTab('kelola-rekening')}
+                className={`flex-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-xl text-[10px] font-semibold transition-all ${
+                  adminTab === 'kelola-rekening' || adminTab.startsWith('rekening-')
+                    ? 'text-emerald-700 bg-emerald-50 font-bold'
+                    : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                <CreditCard className="w-5 h-5 mb-0.5" />
+                <span>Rekening</span>
+              </button>
+              <button
+                onClick={() => setAdminTab('jadwal')}
+                className={`flex-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-xl text-[10px] font-semibold transition-all ${
+                  adminTab === 'jadwal'
+                    ? 'text-emerald-700 bg-emerald-50 font-bold'
+                    : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                <Calendar className="w-5 h-5 mb-0.5" />
+                <span>Jadwal</span>
+              </button>
+              <button
+                onClick={() => setMobileMenuOpen(true)}
+                className="flex-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-xl text-[10px] font-semibold text-slate-500 hover:text-slate-800 transition-all"
+              >
+                <Menu className="w-5 h-5 mb-0.5" />
+                <span>Menu</span>
+              </button>
+            </nav>
           </div>
         </div>
       )}
