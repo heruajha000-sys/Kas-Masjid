@@ -10,16 +10,34 @@ interface LoginModalProps {
 }
 
 export const LoginModal: React.FC<LoginModalProps> = ({ onLoginSuccess, onClose }) => {
+  const registeredUsers = appStorage.getUsers();
+  const [selectedUserId, setSelectedUserId] = useState<string>('');
   const [selectedRole, setSelectedRole] = useState<UserRole>('bendahara');
   const [pin, setPin] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
+  const handleSelectUser = (userId: string) => {
+    setSelectedUserId(userId);
+    const target = registeredUsers.find((u) => u.id === userId);
+    if (target) {
+      setSelectedRole(target.role);
+    }
+  };
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     const users = appStorage.getUsers();
-    let found = users.find(
-      (u) => u.role === selectedRole && (u.pin === pin || pin === '1234')
-    );
+    let found: UserAccount | undefined;
+
+    if (selectedUserId) {
+      found = users.find(
+        (u) => u.id === selectedUserId && (u.pin === pin || pin === '1234')
+      );
+    } else {
+      found = users.find(
+        (u) => u.role === selectedRole && (u.pin === pin || pin === '1234')
+      );
+    }
 
     // If not in storage yet, create fallback account
     if (!found && (pin === '1234' || pin === '')) {
@@ -36,10 +54,10 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onLoginSuccess, onClose 
     if (found) {
       appStorage.saveCurrentUser(found);
       appStorage.addAuditLog({
-        userName: found.name,
+        userName: found.name || 'Pengurus',
         userRole: found.role,
         action: 'Login Admin Masuk',
-        details: `Petugas berhasil login sebagai ${ROLES_CONFIG[found.role]?.label || found.role}`,
+        details: `Petugas berhasil login sebagai ${found.name ? `${found.name} (${ROLES_CONFIG[found.role]?.label || found.role})` : (ROLES_CONFIG[found.role]?.label || found.role)}`,
         category: 'sistem',
       });
       onLoginSuccess(found);
@@ -101,8 +119,34 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onLoginSuccess, onClose 
         )}
 
         <form onSubmit={handleLogin} className="space-y-4 text-xs">
+          {/* Akun Pengurus Terdaftar */}
+          {registeredUsers.length > 0 && (
+            <div>
+              <label className="block text-slate-300 font-medium mb-1.5">
+                Pilih Akun Pengurus Terdaftar
+              </label>
+              <select
+                value={selectedUserId}
+                onChange={(e) => handleSelectUser(e.target.value)}
+                className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white font-medium focus:outline-none focus:border-emerald-500"
+              >
+                <option value="">-- Atau Pilih Berdasarkan Peran di Bawah --</option>
+                {registeredUsers.map((u) => {
+                  const roleLabel = ROLES_CONFIG[u.role]?.label || u.role;
+                  return (
+                    <option key={u.id} value={u.id}>
+                      {u.name && u.name.trim() !== '' ? `${u.name} — ${roleLabel}` : roleLabel}
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
+          )}
+
           <div>
-            <label className="block text-slate-400 font-medium mb-1.5">Pilih Peran & Jabatan Pengurus</label>
+            <label className="block text-slate-400 font-medium mb-1.5">
+              {selectedUserId ? 'Peran Terpilih (Sesuai Akun)' : 'Pilih Peran & Jabatan Pengurus'}
+            </label>
             <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"

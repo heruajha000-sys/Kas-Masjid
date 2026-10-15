@@ -24,12 +24,14 @@ import {
   ArrowRight,
   Phone,
   Check,
+  UserPlus,
 } from 'lucide-react';
 import { DeleteConfirmModal } from '../common/DeleteConfirmModal';
 import { MosqueProfile, UserAccount, GoogleDriveConfig, BankAccount, Transaction, DkmOfficer } from '../../types';
 import { appStorage, formatRupiah } from '../../utils/storage';
+import { KelolaAkunManager } from './KelolaAkunManager';
 
-export type SettingsTabType = 'profile' | 'pengurus' | 'rekening' | 'drive' | 'password' | 'reset';
+export type SettingsTabType = 'profile' | 'pengurus' | 'rekening' | 'akun' | 'drive' | 'password' | 'reset';
 
 interface SettingsModalProps {
   profile: MosqueProfile;
@@ -43,6 +45,8 @@ interface SettingsModalProps {
   onUpdateAccounts?: (accounts: BankAccount[], transactions: Transaction[]) => void;
   onNavigateToRekening?: () => void;
   onNavigateToAset?: () => void;
+  onUserChanged?: (user: UserAccount) => void;
+  onUsersUpdated?: (users: UserAccount[]) => void;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -57,6 +61,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onUpdateAccounts,
   onNavigateToRekening,
   onNavigateToAset,
+  onUserChanged,
+  onUsersUpdated,
 }) => {
   const [activeTab, setActiveTab] = useState<SettingsTabType>(initialTab);
 
@@ -536,6 +542,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           >
             <CreditCard className="w-4 h-4" />
             <span>Rekening Bank & QRIS</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('akun')}
+            className={`pb-3 border-b-2 flex items-center gap-1.5 whitespace-nowrap transition-colors ${
+              activeTab === 'akun'
+                ? 'border-emerald-500 text-emerald-400 font-bold'
+                : 'border-transparent text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <UserPlus className="w-4 h-4 text-emerald-400" />
+            <span>Buat & Kelola Akun</span>
           </button>
 
           <button
@@ -1154,6 +1172,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   </button>
                 )}
               </div>
+            </div>
+          )}
+
+          {/* TAB: BUAT & KELOLA AKUN PENGURUS */}
+          {activeTab === 'akun' && (
+            <div className="space-y-5">
+              <KelolaAkunManager
+                currentUser={currentUser}
+                onUserChanged={onUserChanged}
+                onUsersUpdated={onUsersUpdated}
+              />
             </div>
           )}
 

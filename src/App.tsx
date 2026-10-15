@@ -23,6 +23,10 @@ import {
   Maximize2,
   Minimize2,
   Smartphone,
+  Share2,
+  RefreshCw,
+  Check,
+  Link2,
 } from 'lucide-react';
 import {
   MosqueProfile,
@@ -37,6 +41,7 @@ import {
   AuditLog,
 } from './types';
 import { appStorage } from './utils/storage';
+import { syncService } from './utils/syncService';
 import { DeleteConfirmModal } from './components/common/DeleteConfirmModal';
 import { FullscreenGuideModal } from './components/common/FullscreenGuideModal';
 import { TvDigitalDisplay } from './components/tv/TvDigitalDisplay';
@@ -84,6 +89,74 @@ export default function App() {
   const [showFullscreenModal, setShowFullscreenModal] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [settingsInitialTab, setSettingsInitialTab] = useState<SettingsTabType>('profile');
+
+  // Cloud Sync & Multi-device persistence state
+  const [syncStatus, setSyncStatus] = useState<'synced' | 'syncing' | 'offline' | 'error'>('synced');
+  const [lastSyncTime, setLastSyncTime] = useState<string>('');
+  const [copyFeedback, setCopyFeedback] = useState(false);
+
+  // Initialize Real-time Cloud Synchronization
+  useEffect(() => {
+    // 1. Initial state hydration from backend server
+    syncService.initSync().then((state) => {
+      if (state) {
+        if (state.profile) setProfile(state.profile);
+        if (state.accounts && state.accounts.length > 0) setAccounts(state.accounts);
+        if (state.transactions) setTransactions(state.transactions);
+        if (state.duties) setDuties(state.duties);
+        if (state.meetings) setMeetings(state.meetings);
+        if (state.qurban) setQurbanList(state.qurban);
+        if (state.assets) setAssets(state.assets);
+        if (state.loans) setLoans(state.loans);
+        if (state.auditLogs) setLogs(state.auditLogs);
+      }
+    });
+
+    // 2. Listen to real-time updates pushed from other phones, TVs, or computers
+    const unsubSync = syncService.subscribe((newState) => {
+      if (newState.profile) setProfile(newState.profile);
+      if (newState.accounts && newState.accounts.length > 0) setAccounts(newState.accounts);
+      if (newState.transactions) setTransactions(newState.transactions);
+      if (newState.duties) setDuties(newState.duties);
+      if (newState.meetings) setMeetings(newState.meetings);
+      if (newState.qurban) setQurbanList(newState.qurban);
+      if (newState.assets) setAssets(newState.assets);
+      if (newState.loans) setLoans(newState.loans);
+      if (newState.auditLogs) setLogs(newState.auditLogs);
+    });
+
+    // 3. Status listener (indicates connection to server)
+    const unsubStatus = syncService.subscribeStatus((status, time) => {
+      setSyncStatus(status);
+      if (time) setLastSyncTime(time);
+    });
+
+    return () => {
+      unsubSync();
+      unsubStatus();
+    };
+  }, []);
+
+  // Helper to share synchronized link
+  const handleShareLink = () => {
+    try {
+      const url = window.location.href;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(url);
+      }
+      setCopyFeedback(true);
+      setTimeout(() => setCopyFeedback(false), 3000);
+    } catch (e) {
+      setCopyFeedback(true);
+      setTimeout(() => setCopyFeedback(false), 3000);
+    }
+  };
+
+  // Helper to force manual synchronization
+  const handleManualSync = async () => {
+    await syncService.pushStateToServer(appStorage.getFullState(), true);
+    await syncService.checkForServerUpdates();
+  };
 
   // PWA install prompt state
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -168,31 +241,35 @@ export default function App() {
     };
   }, []);
 
-  // Sync back to storage on updates
+  // Sync back to storage and server on updates
   const handleUpdateCash = (newTx: Transaction[], newAccs: BankAccount[]) => {
     setTransactions(newTx);
     setAccounts(newAccs);
     appStorage.saveTransactions(newTx);
     appStorage.saveAccounts(newAccs);
     setLogs(appStorage.getAuditLogs());
+    syncService.pushStateToServer(appStorage.getFullState());
   };
 
   const handleUpdateDuties = (newDuties: DutySchedule[]) => {
     setDuties(newDuties);
     appStorage.saveDuties(newDuties);
     setLogs(appStorage.getAuditLogs());
+    syncService.pushStateToServer(appStorage.getFullState());
   };
 
   const handleUpdateMeetings = (newMeetings: MeetingRecord[]) => {
     setMeetings(newMeetings);
     appStorage.saveMeetings(newMeetings);
     setLogs(appStorage.getAuditLogs());
+    syncService.pushStateToServer(appStorage.getFullState());
   };
 
   const handleUpdateQurban = (newList: QurbanParticipant[]) => {
     setQurbanList(newList);
     appStorage.saveQurban(newList);
     setLogs(appStorage.getAuditLogs());
+    syncService.pushStateToServer(appStorage.getFullState());
   };
 
   const handleUpdateAssets = (newAssets: MosqueAsset[], newLoans: AssetLoan[]) => {
@@ -201,12 +278,14 @@ export default function App() {
     appStorage.saveAssets(newAssets);
     appStorage.saveLoans(newLoans);
     setLogs(appStorage.getAuditLogs());
+    syncService.pushStateToServer(appStorage.getFullState());
   };
 
   const handleUpdateProfile = (newProfile: MosqueProfile) => {
     setProfile(newProfile);
     appStorage.saveProfile(newProfile);
     setLogs(appStorage.getAuditLogs());
+    syncService.pushStateToServer(appStorage.getFullState());
   };
 
   // Switch to Admin
@@ -426,15 +505,74 @@ export default function App() {
                 </div>
 
                 {/* Google Drive Status Pill */}
-                <span className="hidden lg:flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold border border-emerald-200 shadow-xs">
+                <span className="hidden xl:flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold border border-emerald-200 shadow-xs">
                   <Cloud className="w-3.5 h-3.5 text-emerald-600" />
                   <span>Google Drive Terhubung</span>
                 </span>
 
+                {/* Cloud Real-Time Sync Indicator */}
+                <button
+                  onClick={handleManualSync}
+                  className={`hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border transition-all cursor-pointer ${
+                    syncStatus === 'syncing'
+                      ? 'bg-amber-50 text-amber-700 border-amber-300'
+                      : syncStatus === 'offline'
+                      ? 'bg-slate-100 text-slate-700 border-slate-300'
+                      : 'bg-emerald-50 text-emerald-800 border-emerald-300 shadow-xs'
+                  }`}
+                  title={
+                    syncStatus === 'syncing'
+                      ? 'Sedang menyinkronkan data ke cloud...'
+                      : `Tersambung ke Cloud Server (${lastSyncTime || 'Real-time'}). Klik untuk sinkronkan manual.`
+                  }
+                >
+                  <span
+                    className={`w-2 h-2 rounded-full ${
+                      syncStatus === 'syncing'
+                        ? 'bg-amber-500 animate-spin'
+                        : syncStatus === 'offline'
+                        ? 'bg-slate-400'
+                        : 'bg-emerald-500 animate-pulse'
+                    }`}
+                  />
+                  <span>
+                    {syncStatus === 'syncing'
+                      ? 'Menyinkronkan...'
+                      : syncStatus === 'offline'
+                      ? 'Mode Offline'
+                      : 'Cloud Singkron'}
+                  </span>
+                  <RefreshCw
+                    className={`w-3 h-3 text-slate-500 hover:text-emerald-700 ${
+                      syncStatus === 'syncing' ? 'animate-spin' : ''
+                    }`}
+                  />
+                </button>
+
+                {/* Bagikan Link Sinkron Button */}
+                <button
+                  onClick={handleShareLink}
+                  className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 border border-slate-300 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-xs cursor-pointer"
+                  title="Salin Tautan Aplikasi untuk Dibagikan ke HP Lain (Tetap Singkron)"
+                >
+                  {copyFeedback ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-emerald-600 font-bold" />
+                      <span className="text-emerald-700 font-bold">Link Tersalin!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Share2 className="w-3.5 h-3.5 text-slate-600" />
+                      <span className="hidden sm:inline">Bagikan Link</span>
+                      <span className="sm:hidden">Share</span>
+                    </>
+                  )}
+                </button>
+
                 {/* Switch to TV Display Mode */}
                 <button
                   onClick={() => setCurrentMode('tv')}
-                  className="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-emerald-400 text-xs font-bold flex items-center gap-1.5 transition-all shadow-xs"
+                  className="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-emerald-400 text-xs font-bold flex items-center gap-1.5 transition-all shadow-xs cursor-pointer"
                   title="Lihat Tampilan Layar Mading Smart TV"
                 >
                   <Tv className="w-4 h-4" />
@@ -719,6 +857,13 @@ export default function App() {
           onNavigateToAset={() => {
             setShowSettingsModal(false);
             setAdminTab('aset');
+          }}
+          onUserChanged={(u) => {
+            setCurrentUser(u);
+            setLogs(appStorage.getAuditLogs());
+          }}
+          onUsersUpdated={() => {
+            setLogs(appStorage.getAuditLogs());
           }}
         />
       )}

@@ -190,12 +190,14 @@ export const DEFAULT_DRIVE_CONFIG: GoogleDriveConfig = {
   autoSync: true,
 };
 
-// Inisialisasi pengosongan seluruh data & nama sesuai instruksi pengguna ("Kosongkan semua nama nama yang ada di aplikasi ini")
-const CLEAR_ALL_NAMES_FLAG = 'masjid_cleared_names_v8';
+// Inisialisasi awal aman hanya jika data belum pernah tersimpan sama sekali di browser
 if (typeof window !== 'undefined' && window.localStorage) {
-  if (localStorage.getItem(CLEAR_ALL_NAMES_FLAG) !== 'true') {
-    try {
-      // 1. Bersihkan transaksi, jadwal, absensi rapat, qurban, aset, peminjaman, log audit
+  try {
+    if (!localStorage.getItem(STORAGE_KEYS.PROFILE)) {
+      localStorage.setItem(STORAGE_KEYS.PROFILE, JSON.stringify(DEFAULT_PROFILE));
+      localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(DEFAULT_ACCOUNTS));
+      localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(DEFAULT_USERS));
+      localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(DEFAULT_USERS[0]));
       localStorage.setItem(STORAGE_KEYS.TRANSACTIONS, JSON.stringify([]));
       localStorage.setItem(STORAGE_KEYS.DUTY_SCHEDULES, JSON.stringify([]));
       localStorage.setItem(STORAGE_KEYS.MEETINGS, JSON.stringify([]));
@@ -203,52 +205,9 @@ if (typeof window !== 'undefined' && window.localStorage) {
       localStorage.setItem(STORAGE_KEYS.ASSETS, JSON.stringify([]));
       localStorage.setItem(STORAGE_KEYS.LOANS, JSON.stringify([]));
       localStorage.setItem(STORAGE_KEYS.AUDIT_LOGS, JSON.stringify([]));
-
-      // 2. Kosongkan semua nama pengurus pada profil masjid
-      const rawProfile = localStorage.getItem(STORAGE_KEYS.PROFILE);
-      let pObj = rawProfile ? JSON.parse(rawProfile) : { ...DEFAULT_PROFILE };
-      pObj = {
-        ...pObj,
-        ketuaTakmir: '',
-        wakilKetua: '',
-        bendahara: '',
-        bendahara2: '',
-        sekretaris: '',
-        sekretaris2: '',
-        sieKeamanan: '',
-        siePerlengkapan: '',
-        sieDakwah: '',
-        siePeribadatan: '',
-        sieSosial: '',
-        sieRemaja: '',
-        sieHumas: '',
-        marbot: '',
-        penasihat: '',
-        customOfficers: [],
-        phone: '',
-        email: '',
-        runningTexts: DEFAULT_PROFILE.runningTexts,
-      };
-      localStorage.setItem(STORAGE_KEYS.PROFILE, JSON.stringify(pObj));
-
-      // 3. Kosongkan semua nama akun user
-      const emptyUsers = DEFAULT_USERS.map((u) => ({ ...u, name: '' }));
-      localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(emptyUsers));
-      localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(emptyUsers[0]));
-
-      // 4. Kosongkan nama pemegang rekening dan nomor rekening contoh
-      const zeroedAccounts = DEFAULT_ACCOUNTS.map((a) => ({
-        ...a,
-        holderName: '',
-        accountNumber: '',
-        balance: 0,
-      }));
-      localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(zeroedAccounts));
-
-      localStorage.setItem(CLEAR_ALL_NAMES_FLAG, 'true');
-    } catch (e) {
-      console.error('Error emptying names and data in initial localStorage:', e);
     }
+  } catch (e) {
+    console.warn('Storage initial bootstrap notice:', e);
   }
 }
 
@@ -354,49 +313,50 @@ export const appStorage = {
 
   getUsers: () => {
     const users = loadFromStorage<UserAccount[]>(STORAGE_KEYS.USERS, DEFAULT_USERS);
-    const legacyNames = [
-      'Ustadz Ahmad Fauzi, S.E.',
-      'Muhammad Ridwan, S.Kom',
-      'H. Bambang Sulistyo, M.Ag',
-      'Fikri Haikal',
-      'Pak Slamet Riyadi',
-      'Super Admin',
-    ];
-    let changed = false;
-    const sanitized = users.map((u) => {
-      if (u.name && legacyNames.includes(u.name)) {
-        changed = true;
-        return { ...u, name: '' };
-      }
-      return u;
-    });
-    if (changed || !users.some((u) => u.role === 'admin')) {
-      saveToStorage(STORAGE_KEYS.USERS, sanitized);
-      return sanitized;
+    if (!users || users.length === 0) {
+      saveToStorage(STORAGE_KEYS.USERS, DEFAULT_USERS);
+      return DEFAULT_USERS;
     }
-    return sanitized;
+    return users;
   },
   saveUsers: (u: UserAccount[]) => saveToStorage(STORAGE_KEYS.USERS, u),
 
   getCurrentUser: (): UserAccount => {
-    const cur = loadFromStorage<UserAccount>(STORAGE_KEYS.CURRENT_USER, DEFAULT_USERS[0]);
-    if (!cur) return DEFAULT_USERS[0];
-    const legacyNames = [
-      'Ustadz Ahmad Fauzi, S.E.',
-      'Muhammad Ridwan, S.Kom',
-      'H. Bambang Sulistyo, M.Ag',
-      'Fikri Haikal',
-      'Pak Slamet Riyadi',
-      'Super Admin',
-    ];
-    if (cur.name && legacyNames.includes(cur.name)) {
-      const cleaned = { ...cur, name: '' };
-      saveToStorage(STORAGE_KEYS.CURRENT_USER, cleaned);
-      return cleaned;
-    }
-    return cur;
+    const cur = loadFromStorage<UserAccount | null>(STORAGE_KEYS.CURRENT_USER, null);
+    if (cur) return cur;
+    const allUsers = appStorage.getUsers();
+    return allUsers[0] || DEFAULT_USERS[0];
   },
   saveCurrentUser: (u: UserAccount) => saveToStorage(STORAGE_KEYS.CURRENT_USER, u),
+
+  getFullState: () => ({
+    profile: appStorage.getProfile(),
+    accounts: appStorage.getAccounts(),
+    transactions: appStorage.getTransactions(),
+    duties: appStorage.getDuties(),
+    meetings: appStorage.getMeetings(),
+    qurban: appStorage.getQurban(),
+    assets: appStorage.getAssets(),
+    loans: appStorage.getLoans(),
+    auditLogs: appStorage.getAuditLogs(),
+    users: appStorage.getUsers(),
+    driveConfig: appStorage.getDriveConfig(),
+  }),
+
+  setFullState: (state: any) => {
+    if (!state) return;
+    if (state.profile) appStorage.saveProfile(state.profile);
+    if (state.accounts && Array.isArray(state.accounts)) appStorage.saveAccounts(state.accounts);
+    if (state.transactions && Array.isArray(state.transactions)) appStorage.saveTransactions(state.transactions);
+    if (state.duties && Array.isArray(state.duties)) appStorage.saveDuties(state.duties);
+    if (state.meetings && Array.isArray(state.meetings)) appStorage.saveMeetings(state.meetings);
+    if (state.qurban && Array.isArray(state.qurban)) appStorage.saveQurban(state.qurban);
+    if (state.assets && Array.isArray(state.assets)) appStorage.saveAssets(state.assets);
+    if (state.loans && Array.isArray(state.loans)) appStorage.saveLoans(state.loans);
+    if (state.auditLogs && Array.isArray(state.auditLogs)) appStorage.saveAuditLogs(state.auditLogs);
+    if (state.users && Array.isArray(state.users) && state.users.length > 0) appStorage.saveUsers(state.users);
+    if (state.driveConfig) appStorage.saveDriveConfig(state.driveConfig);
+  },
 
   getAccounts: () => {
     const accs = loadFromStorage<BankAccount[]>(STORAGE_KEYS.ACCOUNTS, DEFAULT_ACCOUNTS);

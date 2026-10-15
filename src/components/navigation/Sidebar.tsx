@@ -21,6 +21,7 @@ import {
   Smartphone,
   Maximize2,
   Minimize2,
+  UserPlus,
 } from 'lucide-react';
 import { MosqueProfile, UserAccount, BankAccount } from '../../types';
 import { SettingsTabType } from '../admin/SettingsModal';
@@ -77,6 +78,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const handleItemClick = (tabKey: string) => {
     if (tabKey === 'pengaturan-masjid') {
       onOpenSettings('profile');
+    } else if (tabKey === 'kelola-akun') {
+      onOpenSettings('akun');
     } else if (tabKey === 'pengaturan-tv') {
       onOpenTv();
     } else {
@@ -396,6 +399,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
             >
               <Settings className="w-4 h-4 shrink-0 text-slate-500" />
               <span className="truncate">Pengaturan Masjid</span>
+            </button>
+
+            {/* Buat & Kelola Akun */}
+            <button
+              onClick={() => handleItemClick('kelola-akun')}
+              className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100/90 transition-all"
+            >
+              <UserPlus className="w-4 h-4 shrink-0 text-emerald-600" />
+              <span className="truncate">Buat & Kelola Akun</span>
             </button>
 
             {/* Pengaturan TV */}
