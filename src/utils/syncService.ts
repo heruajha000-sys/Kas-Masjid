@@ -29,8 +29,9 @@ export interface AppFullState {
   serverVersion?: number;
 }
 
+export type SyncStatusType = 'synced' | 'syncing' | 'offline' | 'error';
 type SyncListener = (state: AppFullState) => void;
-type StatusListener = (status: 'synced' | 'syncing' | 'offline' | 'error', lastSyncTime?: string) => void;
+type StatusListener = (status: SyncStatusType, lastSyncTime?: string, isRealtimeActive?: boolean) => void;
 
 class SyncService {
   private lastServerVersion: number = 0;
@@ -41,10 +42,14 @@ class SyncService {
   private pollingTimer: any = null;
   private debounceTimer: any = null;
   private channel: BroadcastChannel | null = null;
-  private currentStatus: 'synced' | 'syncing' | 'offline' | 'error' = 'synced';
+  private eventSource: EventSource | null = null;
+  private currentStatus: SyncStatusType = 'synced';
   private lastSyncTime: string = '';
+  private isRealtimeConnected: boolean = false;
+  private sseReconnectTimeout: any = null;
 
   constructor() {
+    // 1. Cross-tab synchronization via BroadcastChannel
     if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
       try {
         this.channel = new BroadcastChannel('masjid_state_sync_channel');
@@ -57,6 +62,21 @@ class SyncService {
         console.warn('BroadcastChannel not supported or blocked:', e);
       }
     }
+
+    // 2. Offline / Online event listeners for Automatic Background Sync
+    if (typeof window !== 'undefined') {
+      window.addEventListener('online', () => {
+        console.log('[SyncService] Device is back ONLINE. Triggering auto-sync...');
+        this.handleNetworkOnline();
+      });
+
+      window.addEventListener('offline', () => {
+        console.log('[SyncService] Device went OFFLINE. Running in offline-first cached mode.');
+        this.isRealtimeConnected = false;
+        this.setStatus('offline');
+        window.dispatchEvent(new CustomEvent('masjid_offline_event', { detail: { isOffline: true } }));
+      });
+    }
   }
 
   public subscribe(listener: SyncListener) {
@@ -68,18 +88,22 @@ class SyncService {
 
   public subscribeStatus(listener: StatusListener) {
     this.statusListeners.add(listener);
-    listener(this.currentStatus, this.lastSyncTime);
+    listener(this.currentStatus, this.lastSyncTime, this.isRealtimeConnected);
     return () => {
       this.statusListeners.delete(listener);
     };
   }
 
-  private setStatus(status: 'synced' | 'syncing' | 'offline' | 'error') {
+  private setStatus(status: SyncStatusType) {
     this.currentStatus = status;
     if (status === 'synced') {
-      this.lastSyncTime = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      this.lastSyncTime = new Date().toLocaleTimeString('id-ID', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      });
     }
-    this.statusListeners.forEach((l) => l(status, this.lastSyncTime));
+    this.statusListeners.forEach((l) => l(status, this.lastSyncTime, this.isRealtimeConnected));
   }
 
   private notifySync(state: AppFullState) {
@@ -94,32 +118,44 @@ class SyncService {
 
   /**
    * Initializes sync when app loads:
-   * 1. Fetches server state.
-   * 2. If server has data, applies it.
-   * 3. If server has no data, pushes local state to server.
-   * 4. Starts periodic polling so other devices' changes reflect automatically.
+   * 1. Hydrates from server or pushes local seed.
+   * 2. Establishes Server-Sent Events (SSE) for zero-latency 2-way real-time sync.
+   * 3. Sets up fallback polling.
    */
   public async initSync(): Promise<AppFullState | null> {
     try {
       this.setStatus('syncing');
+
+      // Check if there are pending offline mutations from a previous offline session
+      const hasPendingOffline = localStorage.getItem('masjid_has_offline_pending') === 'true';
+
       const res = await fetch('/api/state', { cache: 'no-store' });
       if (res.ok) {
         const json = await res.json();
         if (json.success && json.data) {
           const serverState: AppFullState = json.data;
-          this.lastServerVersion = serverState.serverVersion || 1;
-          this.lastUpdatedAt = serverState.updatedAt || '';
-          
-          // Apply to local storage
-          appStorage.setFullState(serverState);
+
+          if (hasPendingOffline) {
+            // Push offline changes if local data is fresher
+            const localState = appStorage.getFullState();
+            await this.pushStateToServer(localState, true);
+            localStorage.removeItem('masjid_has_offline_pending');
+          } else {
+            this.lastServerVersion = serverState.serverVersion || 1;
+            this.lastUpdatedAt = serverState.updatedAt || '';
+            appStorage.setFullState(serverState);
+          }
+
           this.setStatus('synced');
+          this.initRealtimeStream();
           this.startPolling();
-          return serverState;
+          return appStorage.getFullState();
         } else {
-          // Server is empty or has no state yet, seed server with current local data
+          // Server is empty or fresh, seed server with current local data
           const localState = appStorage.getFullState();
-          await this.pushStateToServer(localState);
+          await this.pushStateToServer(localState, true);
           this.setStatus('synced');
+          this.initRealtimeStream();
           this.startPolling();
           return localState;
         }
@@ -131,8 +167,106 @@ class SyncService {
       this.setStatus('offline');
     }
 
+    this.initRealtimeStream();
     this.startPolling();
     return null;
+  }
+
+  /**
+   * Establishes Server-Sent Events (SSE) for instant real-time synchronization
+   */
+  private initRealtimeStream() {
+    if (typeof window === 'undefined' || !('EventSource' in window)) return;
+
+    if (this.eventSource) {
+      try {
+        this.eventSource.close();
+      } catch (e) {
+        // ignore
+      }
+      this.eventSource = null;
+    }
+
+    try {
+      this.eventSource = new EventSource('/api/realtime');
+
+      this.eventSource.addEventListener('connected', (_e) => {
+        this.isRealtimeConnected = true;
+        if (this.currentStatus !== 'syncing') {
+          this.setStatus('synced');
+        }
+      });
+
+      this.eventSource.addEventListener('state_update', (e: MessageEvent) => {
+        try {
+          const parsed = JSON.parse(e.data);
+          if (parsed && parsed.state) {
+            const incomingState: AppFullState = parsed.state;
+            const incomingVer = parsed.serverVersion || incomingState.serverVersion || 0;
+
+            if (incomingVer > this.lastServerVersion) {
+              this.lastServerVersion = incomingVer;
+              this.lastUpdatedAt = incomingState.updatedAt || new Date().toISOString();
+              appStorage.setFullState(incomingState);
+              this.notifySync(incomingState);
+              this.setStatus('synced');
+            }
+          }
+        } catch (err) {
+          console.error('[Sync] Error processing realtime state update:', err);
+        }
+      });
+
+      this.eventSource.onerror = () => {
+        this.isRealtimeConnected = false;
+        // Reconnection handled automatically by browser EventSource, but we track status
+        if (navigator.onLine) {
+          // Temporarily offline stream
+          if (this.sseReconnectTimeout) clearTimeout(this.sseReconnectTimeout);
+          this.sseReconnectTimeout = setTimeout(() => {
+            if (navigator.onLine && !this.isRealtimeConnected) {
+              this.initRealtimeStream();
+            }
+          }, 5000);
+        } else {
+          this.setStatus('offline');
+        }
+      };
+    } catch (err) {
+      console.warn('[Sync] Failed to initialize SSE stream:', err);
+      this.isRealtimeConnected = false;
+    }
+  }
+
+  /**
+   * Automatically triggered when device reconnects to internet
+   */
+  public async handleNetworkOnline() {
+    this.setStatus('syncing');
+
+    // Re-establish real-time SSE stream
+    this.initRealtimeStream();
+
+    const hasPendingOffline = localStorage.getItem('masjid_has_offline_pending') === 'true';
+    if (hasPendingOffline) {
+      const localState = appStorage.getFullState();
+      const success = await this.pushStateToServer(localState, true);
+      if (success) {
+        localStorage.removeItem('masjid_has_offline_pending');
+        window.dispatchEvent(
+          new CustomEvent('masjid_sync_success_event', {
+            detail: { message: 'Koneksi online pulih: Data offline berhasil disinkronkan ke server!' },
+          })
+        );
+      }
+    } else {
+      await this.checkForServerUpdates();
+      window.dispatchEvent(
+        new CustomEvent('masjid_sync_success_event', {
+          detail: { message: 'Terhubung kembali ke server realtime.' },
+        })
+      );
+    }
   }
 
   /**
@@ -145,12 +279,12 @@ class SyncService {
       clearInterval(this.pollingTimer);
     }
 
-    // Poll server every 4 seconds to check if another device changed data
+    // Check periodically (every 5s) to catch up if SSE stream paused
     this.pollingTimer = setInterval(() => {
       this.checkForServerUpdates();
-    }, 4000);
+    }, 5000);
 
-    // Also check immediately when tab gains focus
+    // Also check immediately when tab gains focus or screen turns on
     window.addEventListener('focus', () => {
       this.checkForServerUpdates();
     });
@@ -158,6 +292,9 @@ class SyncService {
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') {
         this.checkForServerUpdates();
+        if (!this.isRealtimeConnected && navigator.onLine) {
+          this.initRealtimeStream();
+        }
       }
     });
   }
@@ -169,7 +306,10 @@ class SyncService {
     if (this.isSyncing) return false;
     try {
       const res = await fetch('/api/sync', { cache: 'no-store' });
-      if (!res.ok) return false;
+      if (!res.ok) {
+        if (!navigator.onLine) this.setStatus('offline');
+        return false;
+      }
       const data = await res.json();
 
       if (data.exists && data.serverVersion > this.lastServerVersion) {
@@ -188,12 +328,11 @@ class SyncService {
           }
         }
       }
-      if (this.currentStatus === 'offline') {
+      if (this.currentStatus === 'offline' && navigator.onLine) {
         this.setStatus('synced');
       }
     } catch (e) {
-      // Offline or network error
-      if (this.currentStatus !== 'offline') {
+      if (!navigator.onLine && this.currentStatus !== 'offline') {
         this.setStatus('offline');
       }
     }
@@ -201,19 +340,27 @@ class SyncService {
   }
 
   /**
-   * Push full state or partial updates to server with debounce
+   * Push full state or partial updates to server with debounce.
+   * If offline, stores locally and queues background sync on reconnect.
    */
   public pushStateToServer(state: AppFullState, immediate: boolean = false): Promise<boolean> {
-    // Save to local storage first (instant responsiveness)
+    // 1. Save to local storage first (instant responsiveness, offline-first)
     appStorage.setFullState(state);
 
-    // Broadcast to other open tabs on this machine
+    // 2. Broadcast to other open tabs on this browser
     if (this.channel) {
       try {
         this.channel.postMessage({ type: 'STATE_UPDATED', state });
       } catch (e) {
         // ignore
       }
+    }
+
+    // 3. If offline, record pending sync flag
+    if (!navigator.onLine) {
+      localStorage.setItem('masjid_has_offline_pending', 'true');
+      this.setStatus('offline');
+      return Promise.resolve(true);
     }
 
     return new Promise((resolve) => {
@@ -244,15 +391,20 @@ class SyncService {
             if (resJson.success) {
               this.lastServerVersion = resJson.serverVersion || this.lastServerVersion + 1;
               this.lastUpdatedAt = resJson.updatedAt;
+              localStorage.removeItem('masjid_has_offline_pending');
               this.setStatus('synced');
               resolve(true);
               return;
             }
           }
+
+          // If fetch fails or network dropped
+          localStorage.setItem('masjid_has_offline_pending', 'true');
           this.setStatus('offline');
           resolve(false);
         } catch (err) {
-          console.warn('[Sync] Failed to push state to server:', err);
+          console.warn('[Sync] Failed to push state to server (device may be offline):', err);
+          localStorage.setItem('masjid_has_offline_pending', 'true');
           this.setStatus('offline');
           resolve(false);
         } finally {
@@ -263,7 +415,7 @@ class SyncService {
       if (immediate) {
         doSend();
       } else {
-        this.debounceTimer = setTimeout(doSend, 300);
+        this.debounceTimer = setTimeout(doSend, 250);
       }
     });
   }
@@ -273,6 +425,7 @@ class SyncService {
       status: this.currentStatus,
       lastSyncTime: this.lastSyncTime,
       version: this.lastServerVersion,
+      isRealtimeConnected: this.isRealtimeConnected,
     };
   }
 }

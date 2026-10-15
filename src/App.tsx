@@ -61,6 +61,9 @@ import { AccountDetailView } from './components/kas/AccountDetailView';
 import { KategoriKasManager } from './components/kas/KategoriKasManager';
 import { KelolaRekeningManager } from './components/kas/KelolaRekeningManager';
 import { ResetDataManager } from './components/admin/ResetDataManager';
+import { PWAInstallButton } from './components/pwa/PWAInstallButton';
+import { PWAInstallModal } from './components/pwa/PWAInstallModal';
+import { PWAUpdateToast } from './components/pwa/PWAUpdateToast';
 
 export default function App() {
   // Start directly in admin mode to display the menu requested by the user
@@ -93,6 +96,7 @@ export default function App() {
   // Cloud Sync & Multi-device persistence state
   const [syncStatus, setSyncStatus] = useState<'synced' | 'syncing' | 'offline' | 'error'>('synced');
   const [lastSyncTime, setLastSyncTime] = useState<string>('');
+  const [isRealtimeActive, setIsRealtimeActive] = useState<boolean>(false);
   const [copyFeedback, setCopyFeedback] = useState(false);
 
   // Initialize Real-time Cloud Synchronization
@@ -125,10 +129,11 @@ export default function App() {
       if (newState.auditLogs) setLogs(newState.auditLogs);
     });
 
-    // 3. Status listener (indicates connection to server)
-    const unsubStatus = syncService.subscribeStatus((status, time) => {
+    // 3. Status listener (indicates connection to server and SSE real-time stream)
+    const unsubStatus = syncService.subscribeStatus((status, time, isRealtime) => {
       setSyncStatus(status);
       if (time) setLastSyncTime(time);
+      if (typeof isRealtime === 'boolean') setIsRealtimeActive(isRealtime);
     });
 
     return () => {
@@ -381,11 +386,12 @@ export default function App() {
             isLoggedIn={Boolean(currentUser)}
           />
 
-          {/* Floating Button on TV mode to return to Admin */}
-          <div className="fixed bottom-3 right-3 z-40 flex items-center gap-2 opacity-80 hover:opacity-100 transition-opacity">
+          {/* Floating Buttons on TV mode to return to Admin & Install PWA */}
+          <div className="fixed bottom-3 right-3 z-40 flex items-center gap-2 opacity-85 hover:opacity-100 transition-opacity">
+            <PWAInstallButton variant="tv" />
             <button
               onClick={handleRequestAdminAccess}
-              className="px-4 py-2 rounded-full bg-slate-900/95 hover:bg-slate-800 text-emerald-400 border border-emerald-500/40 text-xs font-bold shadow-xl backdrop-blur-md flex items-center gap-2 transition-all"
+              className="px-4 py-2 rounded-full bg-slate-900/95 hover:bg-slate-800 text-emerald-400 border border-emerald-500/40 text-xs font-bold shadow-xl backdrop-blur-md flex items-center gap-2 transition-all cursor-pointer"
             >
               <Settings className="w-3.5 h-3.5" />
               <span>Kembali ke Menu Admin</span>
@@ -504,26 +510,31 @@ export default function App() {
                   </button>
                 </div>
 
+                {/* PWA Install to Home Screen Button */}
+                <PWAInstallButton variant="header" />
+
                 {/* Google Drive Status Pill */}
                 <span className="hidden xl:flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold border border-emerald-200 shadow-xs">
                   <Cloud className="w-3.5 h-3.5 text-emerald-600" />
                   <span>Google Drive Terhubung</span>
                 </span>
 
-                {/* Cloud Real-Time Sync Indicator */}
+                {/* Cloud Real-Time Two-Way Sync Indicator */}
                 <button
                   onClick={handleManualSync}
-                  className={`hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border transition-all cursor-pointer ${
+                  className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
                     syncStatus === 'syncing'
                       ? 'bg-amber-50 text-amber-700 border-amber-300'
                       : syncStatus === 'offline'
-                      ? 'bg-slate-100 text-slate-700 border-slate-300'
+                      ? 'bg-amber-50 text-amber-900 border-amber-300'
                       : 'bg-emerald-50 text-emerald-800 border-emerald-300 shadow-xs'
                   }`}
                   title={
                     syncStatus === 'syncing'
                       ? 'Sedang menyinkronkan data ke cloud...'
-                      : `Tersambung ke Cloud Server (${lastSyncTime || 'Real-time'}). Klik untuk sinkronkan manual.`
+                      : syncStatus === 'offline'
+                      ? 'Mode Offline aktif. Data tersimpan lokal di HP & akan otomatis disinkronkan saat online.'
+                      : `Sinkronisasi Realtime Aktif (${isRealtimeActive ? 'SSE 2-Arah Terhubung' : lastSyncTime || 'Tersambung'}). Klik untuk sinkron manual.`
                   }
                 >
                   <span
@@ -531,7 +542,7 @@ export default function App() {
                       syncStatus === 'syncing'
                         ? 'bg-amber-500 animate-spin'
                         : syncStatus === 'offline'
-                        ? 'bg-slate-400'
+                        ? 'bg-amber-500'
                         : 'bg-emerald-500 animate-pulse'
                     }`}
                   />
@@ -540,6 +551,8 @@ export default function App() {
                       ? 'Menyinkronkan...'
                       : syncStatus === 'offline'
                       ? 'Mode Offline'
+                      : isRealtimeActive
+                      ? 'Realtime Aktif'
                       : 'Cloud Singkron'}
                   </span>
                   <RefreshCw
@@ -891,6 +904,15 @@ export default function App() {
         onToggleFullscreen={toggleFullscreen}
         canInstall={Boolean(deferredPrompt)}
         onInstall={handleInstallApp}
+      />
+
+      {/* PWA BACKGROUND AUTO-UPDATE & OFFLINE NOTIFICATION TOAST */}
+      <PWAUpdateToast />
+
+      {/* PWA INSTALL MODAL */}
+      <PWAInstallModal
+        isOpen={showFullscreenModal}
+        onClose={() => setShowFullscreenModal(false)}
       />
     </div>
   );

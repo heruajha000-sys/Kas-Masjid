@@ -82,6 +82,8 @@ export const TvDigitalDisplay: React.FC<TvDigitalDisplayProps> = ({
   const [slideProgress, setSlideProgress] = useState(0);
   const [copiedAccId, setCopiedAccId] = useState<string | null>(null);
   const [showSwipeHint, setShowSwipeHint] = useState(true);
+  const [dragOffset, setDragOffset] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
 
   // Touch and drag swipe tracking
   const touchStartXRef = useRef<number>(0);
@@ -89,6 +91,7 @@ export const TvDigitalDisplay: React.FC<TvDigitalDisplayProps> = ({
   const isSwipingRef = useRef<boolean>(false);
   const isMouseDownRef = useRef<boolean>(false);
   const mouseStartXRef = useRef<number>(0);
+  const lastWheelTimeRef = useRef<number>(0);
 
   const SLIDE_COUNT = 5;
   const SLIDE_DURATION_SEC = 12;
@@ -203,43 +206,87 @@ export const TvDigitalDisplay: React.FC<TvDigitalDisplayProps> = ({
       touchStartXRef.current = e.touches[0].clientX;
       touchStartYRef.current = e.touches[0].clientY;
       isSwipingRef.current = true;
+      setIsDragging(true);
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isSwipingRef.current || e.touches.length === 0) return;
+    const currentX = e.touches[0].clientX;
+    const currentY = e.touches[0].clientY;
+    const deltaX = currentX - touchStartXRef.current;
+    const deltaY = currentY - touchStartYRef.current;
+
+    // Jika gerakan horizontal cukup jelas, update dragOffset untuk animasi geser real-time
+    if (Math.abs(deltaX) > Math.abs(deltaY) * 0.7) {
+      setDragOffset(deltaX * 0.85);
     }
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (!isSwipingRef.current || e.changedTouches.length === 0) return;
+    if (!isSwipingRef.current) return;
     isSwipingRef.current = false;
+    setIsDragging(false);
 
-    const endX = e.changedTouches[0].clientX;
-    const endY = e.changedTouches[0].clientY;
+    const endX = e.changedTouches?.[0]?.clientX ?? touchStartXRef.current;
     const deltaX = endX - touchStartXRef.current;
-    const deltaY = endY - touchStartYRef.current;
 
-    // Geser horizontal (Swipe Left / Right)
-    if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY)) {
+    if (Math.abs(deltaX) > 35) {
       if (deltaX < 0) {
-        // Geser ke kiri -> slide berikutnya
         handleNextSlide();
       } else {
-        // Geser ke kanan -> slide sebelumnya
         handlePrevSlide();
       }
       setShowSwipeHint(false);
     }
+    setDragOffset(0);
   };
 
-  // Mouse Drag Handlers for Desktop/Laptop
+  // Mouse Drag Handlers for Desktop/Laptop/PC
   const handleMouseDown = (e: React.MouseEvent) => {
+    if (e.button !== 0) return;
     isMouseDownRef.current = true;
     mouseStartXRef.current = e.clientX;
+    setIsDragging(true);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isMouseDownRef.current) return;
+    const deltaX = e.clientX - mouseStartXRef.current;
+    setDragOffset(deltaX * 0.7);
   };
 
   const handleMouseUp = (e: React.MouseEvent) => {
     if (!isMouseDownRef.current) return;
     isMouseDownRef.current = false;
+    setIsDragging(false);
     const deltaX = e.clientX - mouseStartXRef.current;
-    if (Math.abs(deltaX) > 50) {
+    if (Math.abs(deltaX) > 40) {
       if (deltaX < 0) {
+        handleNextSlide();
+      } else {
+        handlePrevSlide();
+      }
+      setShowSwipeHint(false);
+    }
+    setDragOffset(0);
+  };
+
+  const handleMouseLeave = () => {
+    if (isMouseDownRef.current) {
+      isMouseDownRef.current = false;
+      setIsDragging(false);
+      setDragOffset(0);
+    }
+  };
+
+  // Horizontal Wheel / Trackpad swipe
+  const handleWheel = (e: React.WheelEvent) => {
+    const now = Date.now();
+    if (now - lastWheelTimeRef.current < 350) return;
+    if (Math.abs(e.deltaX) > 30) {
+      lastWheelTimeRef.current = now;
+      if (e.deltaX > 0) {
         handleNextSlide();
       } else {
         handlePrevSlide();
@@ -561,17 +608,27 @@ export const TvDigitalDisplay: React.FC<TvDigitalDisplayProps> = ({
         id="tv-main-content"
         className={`flex-1 relative flex flex-col justify-between w-full select-none ${
           viewMode === 'slide'
-            ? 'overflow-hidden touch-pan-y'
+            ? 'overflow-y-auto overflow-x-hidden touch-manipulation'
             : 'overflow-y-auto overflow-x-hidden p-4 sm:p-6 gap-6'
         }`}
         onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
         onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseLeave}
+        onWheel={handleWheel}
       >
         {/* ======================= MODE SLIDE (SWIPEABLE CAROUSEL) ======================= */}
         {viewMode === 'slide' && (
-          <div className="flex-1 w-full flex flex-col justify-between p-4 sm:p-6 relative">
+          <div
+            className="flex-1 w-full flex flex-col justify-between p-3 sm:p-6 relative will-change-transform"
+            style={{
+              transform: dragOffset !== 0 ? `translateX(${dragOffset}px)` : undefined,
+              transition: isDragging ? 'none' : 'transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1)',
+            }}
+          >
             
             {/* FLOATING PREV / NEXT ARROWS (FOR FAST SLIDING) */}
             <button
@@ -1010,24 +1067,33 @@ export const TvDigitalDisplay: React.FC<TvDigitalDisplayProps> = ({
             )}
 
             {/* Slide Indicator Dots at Bottom */}
-            <div className="flex items-center justify-center gap-2 mt-4 shrink-0">
-              {Array.from({ length: SLIDE_COUNT }).map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => {
-                    setActiveSlide(idx);
-                    setSlideProgress(0);
-                  }}
-                  className={`h-2 rounded-full transition-all ${
-                    activeSlide === idx
-                      ? 'w-8 bg-emerald-500'
-                      : isTvDarkMode
-                      ? 'w-2 bg-slate-700 hover:bg-slate-600'
-                      : 'w-2 bg-slate-300 hover:bg-slate-400'
-                  }`}
-                  title={`Geser ke Slide ${idx + 1}`}
-                />
-              ))}
+            {/* Slide Indicator Dots and swipe hint at Bottom */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 mt-4 shrink-0 pb-1">
+              <div className="flex items-center gap-2 bg-black/25 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/10 shadow-lg">
+                <span className="text-[11px] font-bold text-emerald-400 mr-1 hidden xs:inline">
+                  Slide {activeSlide + 1} / {SLIDE_COUNT}
+                </span>
+                {Array.from({ length: SLIDE_COUNT }).map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => {
+                      setActiveSlide(idx);
+                      setSlideProgress(0);
+                    }}
+                    className={`h-2.5 rounded-full transition-all ${
+                      activeSlide === idx
+                        ? 'w-8 bg-emerald-500 shadow-md shadow-emerald-500/50'
+                        : isTvDarkMode
+                        ? 'w-2.5 bg-slate-700 hover:bg-slate-500'
+                        : 'w-2.5 bg-slate-300 hover:bg-slate-400'
+                    }`}
+                    title={`Buka Slide ${idx + 1}`}
+                  />
+                ))}
+              </div>
+              <span className={`text-[10px] font-medium opacity-80 ${isTvDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>
+                (Usap/geser layar ◄ ► atau klik panah untuk berpindah)
+              </span>
             </div>
           </div>
         )}

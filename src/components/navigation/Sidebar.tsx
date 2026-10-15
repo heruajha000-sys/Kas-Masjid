@@ -26,6 +26,7 @@ import {
 import { MosqueProfile, UserAccount, BankAccount } from '../../types';
 import { SettingsTabType } from '../admin/SettingsModal';
 import { canAccessTab, ROLES_CONFIG } from '../../utils/rbac';
+import { PWAInstallButton } from '../pwa/PWAInstallButton';
 
 export type NavTabType =
   | 'dashboard'
@@ -435,6 +436,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
               />
               <span className="truncate">Reset Data</span>
             </button>
+          </div>
+
+          {/* In-App PWA Install Banner */}
+          <div className="pt-2 px-0.5">
+            <PWAInstallButton variant="sidebar" />
           </div>
         </div>
       </div>

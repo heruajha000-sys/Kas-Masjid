@@ -10,6 +10,21 @@ const __dirname = path.dirname(__filename);
 const PORT = 3000;
 const DATA_DIR = path.resolve(__dirname, 'data');
 const STATE_FILE = path.join(DATA_DIR, 'app_state.json');
+const BUILD_VERSION = '1.2.0-' + Date.now();
+
+// Active SSE client connections for instant Realtime data push
+const sseClients = new Set<express.Response>();
+
+function broadcastRealtimeUpdate(payload: any) {
+  const data = JSON.stringify(payload);
+  for (const client of sseClients) {
+    try {
+      client.write(`event: state_update\ndata: ${data}\n\n`);
+    } catch (e) {
+      sseClients.delete(client);
+    }
+  }
+}
 
 // Ensure data folder exists
 if (!fs.existsSync(DATA_DIR)) {
@@ -67,11 +82,12 @@ async function startServer() {
     next();
   });
 
-  // API 1: Health check
+  // API 1: Health check & App Version
   app.get('/api/health', (_req, res) => {
     res.json({
       status: 'ok',
       service: 'Masjid Cloud State Sync API',
+      version: BUILD_VERSION,
       time: new Date().toISOString(),
     });
   });
@@ -102,7 +118,7 @@ async function startServer() {
     });
   });
 
-  // API 4: Save / synchronize full application state
+  // API 4: Save / synchronize full application state + Realtime Push
   app.post('/api/state', (req, res) => {
     try {
       const incomingState = req.body;
@@ -111,6 +127,15 @@ async function startServer() {
       }
 
       const saved = writeServerState(incomingState);
+
+      // Instantly push to all connected clients via SSE
+      broadcastRealtimeUpdate({
+        type: 'STATE_UPDATED',
+        state: saved,
+        serverVersion: saved.serverVersion,
+        updatedAt: saved.updatedAt,
+      });
+
       res.json({
         success: true,
         updatedAt: saved.updatedAt,
@@ -121,14 +146,43 @@ async function startServer() {
     }
   });
 
-  // API 5: Get accounts/users directly
+  // API 5: Server-Sent Events (SSE) for 2-Way Realtime Data Sync
+  app.get('/api/realtime', (req, res) => {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache, no-transform');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no');
+    res.flushHeaders?.();
+
+    // Initial greeting event
+    res.write(`event: connected\ndata: ${JSON.stringify({ time: new Date().toISOString(), build: BUILD_VERSION })}\n\n`);
+
+    sseClients.add(res);
+
+    // Heartbeat to keep connection alive through proxies
+    const heartbeat = setInterval(() => {
+      try {
+        res.write(': heartbeat\n\n');
+      } catch (e) {
+        clearInterval(heartbeat);
+        sseClients.delete(res);
+      }
+    }, 15000);
+
+    req.on('close', () => {
+      clearInterval(heartbeat);
+      sseClients.delete(res);
+    });
+  });
+
+  // API 6: Get accounts/users directly
   app.get('/api/users', (_req, res) => {
     const state = readServerState();
     const users = state?.users || [];
     res.json({ success: true, users });
   });
 
-  // API 6: Save/update users directly
+  // API 7: Save/update users directly + Realtime Push
   app.post('/api/users', (req, res) => {
     try {
       const { users } = req.body;
@@ -138,6 +192,15 @@ async function startServer() {
       const state = readServerState() || {};
       state.users = users;
       const saved = writeServerState(state);
+
+      // Push realtime update
+      broadcastRealtimeUpdate({
+        type: 'STATE_UPDATED',
+        state: saved,
+        serverVersion: saved.serverVersion,
+        updatedAt: saved.updatedAt,
+      });
+
       res.json({
         success: true,
         users: saved.users,
