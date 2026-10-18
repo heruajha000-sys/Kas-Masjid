@@ -540,25 +540,6 @@ export const TvDigitalDisplay: React.FC<TvDigitalDisplayProps> = ({
         </div>
       </header>
 
-      {/* SWIPE NAVIGATION HINT (DISMISSIBLE BANNER) */}
-      {showSwipeHint && (
-        <div className="bg-emerald-900/90 text-emerald-100 text-xs py-1.5 px-4 flex items-center justify-between border-b border-emerald-700/60 transition-all">
-          <div className="flex items-center gap-2 mx-auto">
-            <span className="animate-pulse">👈👉</span>
-            <span className="font-medium">
-              <strong>Tips Layar TV:</strong> Layar ini dapat <strong>digeser (swipe ke kiri/kanan)</strong> dengan jari di HP, atau klik tombol panah samping untuk berpindah informasi.
-            </span>
-          </div>
-          <button
-            onClick={() => setShowSwipeHint(false)}
-            className="p-1 hover:bg-emerald-800 rounded text-emerald-300 transition-colors ml-2"
-            title="Tutup tips"
-          >
-            <X className="w-3.5 h-3.5" />
-          </button>
-        </div>
-      )}
-
       {/* 2. SLIDE NAVIGATION TABS (Bisa diklik untuk geser langsung) */}
       {viewMode === 'slide' && (
         <div
@@ -704,34 +685,34 @@ export const TvDigitalDisplay: React.FC<TvDigitalDisplayProps> = ({
                       : 'bg-white border-emerald-200 text-slate-900 shadow-md'
                   }`}
                 >
-                  <div className="flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
-                    <div className="flex items-center gap-4">
+                  <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6 text-center md:text-left w-full">
+                    <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 text-center sm:text-left">
                       <div
-                        className={`w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg shrink-0 ${
+                        className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center shadow-lg shrink-0 ${
                           nextPrayer.isIqomahCountdown ? 'bg-white/20 text-white' : 'bg-emerald-500 text-white'
                         }`}
                       >
-                        <Clock className="w-8 h-8 animate-spin-slow" />
+                        <Clock className="w-7 h-7 sm:w-8 sm:h-8 animate-spin-slow" />
                       </div>
-                      <div>
-                        <div className="flex items-center gap-2 justify-center md:justify-start">
-                          <span className={`text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2 justify-center sm:justify-start">
+                          <span className={`text-[11px] sm:text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${
                             nextPrayer.isIqomahCountdown
                               ? 'bg-white text-amber-800 font-extrabold'
                               : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
                           }`}>
                             {nextPrayer.isIqomahCountdown ? 'Waktu Iqomah Masuk' : 'Hitung Mundur Adzan'}
                           </span>
-                          <span className="text-xs opacity-80">
+                          <span className="text-[11px] sm:text-xs opacity-80">
                             Target: {nextPrayer.name} ({nextPrayer.timeString} WIB)
                           </span>
                         </div>
-                        <h2 className="text-xl lg:text-3xl font-black tracking-tight mt-1">
+                        <h2 className="text-lg sm:text-2xl lg:text-3xl font-black tracking-tight mt-1 break-words">
                           {nextPrayer.isIqomahCountdown
                             ? `WAKTU SHOLAT ${nextPrayer.name.toUpperCase()} TELAH TIBA`
                             : `Menuju Masuk Waktu Adzan Sholat ${nextPrayer.name}`}
                         </h2>
-                        <p className="text-xs lg:text-sm opacity-90 mt-0.5">
+                        <p className="text-xs sm:text-sm opacity-90 mt-0.5">
                           {nextPrayer.isIqomahCountdown
                             ? 'Luruskan dan rapatkan shaf. Nonaktifkan suara telepon genggam Anda.'
                             : 'Bersiaplah mengambil wudhu dan membaca doa menyambut panggilan sholat.'}
@@ -739,9 +720,9 @@ export const TvDigitalDisplay: React.FC<TvDigitalDisplayProps> = ({
                       </div>
                     </div>
 
-                    {/* Huge Digital Countdown Clock */}
+                    {/* Digital Countdown Clock */}
                     <div
-                      className={`px-8 py-3 rounded-2xl border font-mono-num font-black text-4xl lg:text-6xl tracking-widest shadow-2xl shrink-0 ${
+                      className={`px-4 sm:px-6 md:px-8 py-2 sm:py-3 rounded-2xl border font-mono-num font-black text-3xl sm:text-5xl lg:text-6xl tracking-wider sm:tracking-widest shadow-2xl shrink-0 ${
                         nextPrayer.isIqomahCountdown
                           ? 'bg-slate-950 text-amber-300 border-amber-300'
                           : isTvDarkMode
@@ -796,7 +777,7 @@ export const TvDigitalDisplay: React.FC<TvDigitalDisplayProps> = ({
                     <span className={`text-sm sm:text-base font-semibold ${isTvDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>
                       TOTAL SALDO SELURUH KAS & REKENING MASJID
                     </span>
-                    <div className="font-mono-num text-4xl sm:text-6xl font-black text-emerald-500 mt-2 tracking-tight">
+                    <div className="font-mono-num text-3xl sm:text-5xl lg:text-6xl font-black text-emerald-500 mt-2 tracking-tight break-words px-2">
                       {formatRupiah(totalBalance)}
                     </div>
                     <p className="text-xs text-emerald-400 mt-2 font-medium">

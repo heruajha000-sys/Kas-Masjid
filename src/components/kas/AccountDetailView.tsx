@@ -249,8 +249,8 @@ export const AccountDetailView: React.FC<AccountDetailViewProps> = ({
             Tidak ada riwayat transaksi pada filter ini.
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-600">
+          <div className="overflow-x-auto w-full">
+            <table className="w-full text-left text-xs text-slate-600 min-w-[620px]">
               <thead className="bg-slate-50 text-slate-500 uppercase font-semibold border-y border-slate-100">
                 <tr>
                   <th className="py-3 px-3">Tanggal</th>

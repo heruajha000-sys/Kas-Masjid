@@ -359,8 +359,8 @@ export const DaftarHadirRapat: React.FC<DaftarHadirRapatProps> = ({
                   </span>
                 </div>
 
-                <div className="rounded-2xl border border-slate-800 overflow-hidden">
-                  <table className="w-full text-left text-xs">
+                <div className="rounded-2xl border border-slate-800 overflow-x-auto w-full shadow-inner">
+                  <table className="w-full text-left text-xs min-w-[500px]">
                     <thead>
                       <tr className="bg-slate-950 border-b border-slate-800 text-slate-400 font-semibold">
                         <th className="p-3 w-10 text-center">No</th>

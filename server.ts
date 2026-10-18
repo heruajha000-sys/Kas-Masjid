@@ -2,6 +2,7 @@ import express from 'express';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import http from 'http';
 import { createServer as createViteServer } from 'vite';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -64,8 +65,28 @@ function writeServerState(state: any) {
   }
 }
 
+// Ensure Vite's client doesn't throw unhandled rejection when WebSockets are disabled in sandbox
+function patchViteClient() {
+  try {
+    const clientPath = path.resolve(__dirname, 'node_modules/vite/dist/client/client.mjs');
+    if (fs.existsSync(clientPath)) {
+      let content = fs.readFileSync(clientPath, 'utf8');
+      const target = 'reject(/* @__PURE__ */ new Error("WebSocket closed without opened."));';
+      if (content.includes(target)) {
+        content = content.replace(target, 'resolve();');
+        fs.writeFileSync(clientPath, content, 'utf8');
+        console.log('[Server] Patched Vite client.mjs to suppress WebSocket closed error');
+      }
+    }
+  } catch (err) {
+    console.warn('[Server] Could not patch Vite client.mjs:', err);
+  }
+}
+
 async function startServer() {
+  patchViteClient();
   const app = express();
+  const httpServer = http.createServer(app);
 
   // Allow larger payloads (e.g. photos/receipts in base64)
   app.use(express.json({ limit: '30mb' }));
@@ -211,6 +232,75 @@ async function startServer() {
     }
   });
 
+  // API 8: Download complete project ZIP with proper attachment headers
+  app.get(['/api/download-zip', '/masjid-app-source.zip'], (_req, res) => {
+    try {
+      const zipPath = path.resolve(__dirname, 'public', 'masjid-app-source.zip');
+      if (fs.existsSync(zipPath)) {
+        res.setHeader('Content-Type', 'application/zip');
+        res.setHeader('Content-Disposition', 'attachment; filename="masjid-app-source.zip"');
+        return res.sendFile(zipPath);
+      }
+      return res.status(404).json({ success: false, error: 'Berkas zip belum tersedia' });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err?.message });
+    }
+  });
+
+  // API 9: Get source files list
+  app.get('/api/source-files', (_req, res) => {
+    try {
+      const allowedExts = ['.ts', '.tsx', '.json', '.html', '.css', '.svg'];
+      const fileList: string[] = [];
+      const excludeDirs = new Set(['node_modules', 'dist', '.git', '.aistudio', '.cache', 'data']);
+
+      function walk(dir: string, base: string = '') {
+        const entries = fs.readdirSync(dir, { withFileTypes: true });
+        for (const entry of entries) {
+          if (entry.isDirectory()) {
+            if (!excludeDirs.has(entry.name)) {
+              walk(path.join(dir, entry.name), path.join(base, entry.name));
+            }
+          } else if (entry.isFile()) {
+            const ext = path.extname(entry.name);
+            if (allowedExts.includes(ext) && entry.name !== 'masjid-app-source.zip') {
+              fileList.push(path.join(base, entry.name).replace(/\\/g, '/'));
+            }
+          }
+        }
+      }
+
+      walk(__dirname);
+      res.json({ success: true, files: fileList.sort() });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err?.message });
+    }
+  });
+
+  // API 10: Get source file content for easy in-app copying
+  app.get('/api/source-file-content', (req, res) => {
+    try {
+      const reqPath = (req.query.path as string || '').replace(/\\/g, '/');
+      if (!reqPath || reqPath.includes('..')) {
+        return res.status(400).json({ success: false, error: 'Jalur berkas tidak valid' });
+      }
+
+      const fullPath = path.resolve(__dirname, reqPath);
+      if (!fullPath.startsWith(__dirname)) {
+        return res.status(403).json({ success: false, error: 'Akses ditolak' });
+      }
+
+      if (!fs.existsSync(fullPath)) {
+        return res.status(404).json({ success: false, error: 'Berkas tidak ditemukan' });
+      }
+
+      const content = fs.readFileSync(fullPath, 'utf-8');
+      res.json({ success: true, path: reqPath, content });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err?.message });
+    }
+  });
+
   // Development vs Production Mode
   const isDev = process.env.NODE_ENV !== 'production' || !fs.existsSync(path.resolve(__dirname, 'dist'));
 
@@ -218,13 +308,13 @@ async function startServer() {
     const vite = await createViteServer({
       server: {
         middlewareMode: true,
-        hmr: process.env.DISABLE_HMR !== 'true',
-        watch: process.env.DISABLE_HMR === 'true' ? null : {},
+        hmr: false,
+        watch: null,
       },
       appType: 'spa',
     });
     app.use(vite.middlewares);
-    console.log('[Server] Vite middleware mounted in dev mode');
+    console.log('[Server] Vite middleware mounted in dev mode (HMR disabled)');
   } else {
     const distPath = path.resolve(__dirname, 'dist');
     app.use(express.static(distPath));
@@ -235,7 +325,7 @@ async function startServer() {
     console.log('[Server] Serving production build from dist');
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
+  httpServer.listen(PORT, '0.0.0.0', () => {
     console.log(`[Server] Masjid App server running at http://0.0.0.0:${PORT}`);
   });
 }

@@ -37,8 +37,13 @@ export const PWAInstallModal: React.FC<PWAInstallModalProps> = ({ isOpen, onClos
         {/* Header */}
         <div className="bg-gradient-to-r from-emerald-600 to-teal-700 px-6 py-5 text-white flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-md p-1.5 flex items-center justify-center border border-white/25 shadow-inner">
-              <img src="/icon.svg" alt="App Icon" className="w-full h-full object-contain" />
+            <div className="w-13 h-13 rounded-2xl overflow-hidden shadow-lg border border-white/30 shrink-0">
+              <img
+                src="/pwa-192x192.png"
+                alt="Ikon Aplikasi Kas Masjid"
+                className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
+              />
             </div>
             <div>
               <h2 className="text-lg font-black tracking-tight">Pasang Aplikasi Masjid</h2>

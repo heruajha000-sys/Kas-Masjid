@@ -562,8 +562,8 @@ export const KasManager: React.FC<KasManagerProps> = ({
 
       {/* TABLE OF TRANSACTIONS */}
       <section id="kas-transactions-table-card" className="rounded-2xl border border-slate-800 bg-slate-900/90 overflow-hidden shadow-lg">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
+        <div className="overflow-x-auto w-full">
+          <table className="w-full text-left text-xs border-collapse min-w-[700px]">
             <thead>
               <tr className="border-b border-slate-800 bg-slate-950/70 text-slate-400 font-semibold uppercase tracking-wider">
                 <th className="p-3.5 w-12 text-center">Tipe</th>

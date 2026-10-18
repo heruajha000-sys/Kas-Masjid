@@ -11,9 +11,11 @@ import {
   Trash2,
   Clock,
   Sparkles,
+  Code,
 } from 'lucide-react';
 import { appStorage, formatRupiah } from '../../utils/storage';
 import { MosqueProfile, UserAccount } from '../../types';
+import { SourceCodeViewerModal } from './SourceCodeViewerModal';
 
 interface StorageHealthManagerProps {
   profile: MosqueProfile;
@@ -32,6 +34,32 @@ export const StorageHealthManager: React.FC<StorageHealthManagerProps> = ({
     message?: string;
   } | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showCodeModal, setShowCodeModal] = useState(false);
+  const [isDownloadingZip, setIsDownloadingZip] = useState(false);
+
+  const handleDownloadSourceZip = async () => {
+    setIsDownloadingZip(true);
+    try {
+      const response = await fetch('/api/download-zip');
+      if (!response.ok) {
+        throw new Error('Gagal mengunduh ZIP');
+      }
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'masjid-app-source.zip';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+    } catch (err) {
+      console.warn('Direct blob download error, falling back:', err);
+      window.location.href = '/api/download-zip';
+    } finally {
+      setIsDownloadingZip(false);
+    }
+  };
 
   const refreshHealth = () => {
     setHealth(appStorage.getStorageHealth());
@@ -268,6 +296,47 @@ export const StorageHealthManager: React.FC<StorageHealthManagerProps> = ({
             </label>
           </div>
         </div>
+
+        {/* Card 3: Download Complete Source Code for Acode / VS Code */}
+        <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-6 border border-slate-700 shadow-md flex flex-col justify-between text-white md:col-span-2">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-start gap-3.5">
+              <div className="w-11 h-11 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30 shrink-0 mt-0.5">
+                <FileText className="w-6 h-6" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-bold text-white text-base">Source Code Lengkap (Acode / Android & VS Code)</h3>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-500 text-slate-900 uppercase">
+                    Developer / Acode
+                  </span>
+                </div>
+                <p className="text-xs text-slate-300 mt-1 max-w-2xl leading-relaxed">
+                  Dapatkan seluruh struktur proyek, kode React, TypeScript, Tailwind CSS, Express backend, ikon PWA, dan konfigurasi Vite. Anda dapat langsung mengunduh paket ZIP atau melihat dan menyalin kode setiap berkas langsung di sini untuk ditempel ke aplikasi <strong>Acode (Android)</strong>.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+              <button
+                onClick={() => setShowCodeModal(true)}
+                className="px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-emerald-500/30 font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer active:scale-95"
+              >
+                <Code className="w-4 h-4" />
+                <span>Lihat & Salin Kode</span>
+              </button>
+
+              <button
+                onClick={handleDownloadSourceZip}
+                disabled={isDownloadingZip}
+                className="px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs flex items-center justify-center gap-2 shadow-lg transition-all cursor-pointer active:scale-95 disabled:opacity-60"
+              >
+                <Download className={`w-4 h-4 ${isDownloadingZip ? 'animate-bounce' : ''}`} />
+                <span>{isDownloadingZip ? 'Sedang Mengunduh...' : 'Unduh ZIP Lengkap'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Notification banner on import */}
@@ -332,6 +401,12 @@ export const StorageHealthManager: React.FC<StorageHealthManagerProps> = ({
           )}
         </div>
       </div>
+
+      {/* MODAL EKSPLORASI & SALIN KODE PROYEK UNTUK ACODE */}
+      <SourceCodeViewerModal
+        isOpen={showCodeModal}
+        onClose={() => setShowCodeModal(false)}
+      />
     </div>
   );
 };

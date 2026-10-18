@@ -386,15 +386,14 @@ export default function App() {
             isLoggedIn={Boolean(currentUser)}
           />
 
-          {/* Floating Buttons on TV mode to return to Admin & Install PWA */}
-          <div className="fixed bottom-3 right-3 z-40 flex items-center gap-2 opacity-85 hover:opacity-100 transition-opacity">
-            <PWAInstallButton variant="tv" />
+          {/* Floating Button on TV mode to return to Admin */}
+          <div className="fixed bottom-3 right-3 z-40 opacity-80 hover:opacity-100 transition-opacity">
             <button
               onClick={handleRequestAdminAccess}
-              className="px-4 py-2 rounded-full bg-slate-900/95 hover:bg-slate-800 text-emerald-400 border border-emerald-500/40 text-xs font-bold shadow-xl backdrop-blur-md flex items-center gap-2 transition-all cursor-pointer"
+              className="px-3.5 py-1.5 rounded-full bg-slate-900/90 hover:bg-slate-800 text-emerald-400 border border-emerald-500/30 text-xs font-semibold shadow-lg backdrop-blur-md flex items-center gap-1.5 transition-all cursor-pointer"
             >
               <Settings className="w-3.5 h-3.5" />
-              <span>Kembali ke Menu Admin</span>
+              <span>Menu Admin</span>
             </button>
           </div>
         </div>
@@ -458,22 +457,22 @@ export default function App() {
           {/* MAIN CONTENT AREA */}
           <div className="flex-1 flex flex-col h-full overflow-hidden w-full max-w-full">
             {/* Top Bar Header (Edge-to-Edge Sticky) */}
-            <header className="no-print bg-white border-b border-slate-200/90 px-4 sm:px-6 py-3 shrink-0 flex items-center justify-between gap-3 shadow-xs sticky top-0 z-30 w-full">
-              <div className="flex items-center gap-3">
+            <header className="no-print bg-white border-b border-slate-200/90 px-3 sm:px-6 py-2.5 sm:py-3 shrink-0 flex items-center justify-between gap-2 sm:gap-3 shadow-xs sticky top-0 z-30 w-full">
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                 {/* Mobile Hamburger Toggle Button */}
                 <button
                   onClick={() => setMobileMenuOpen(true)}
-                  className="p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 md:hidden transition-colors"
+                  className="p-1.5 sm:p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 md:hidden transition-colors shrink-0"
                   title="Buka Menu"
                 >
                   <Menu className="w-5 h-5" />
                 </button>
 
-                <div>
-                  <h1 className="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
+                <div className="min-w-0">
+                  <h1 className="text-sm sm:text-base md:text-lg font-extrabold text-slate-900 tracking-tight flex items-center gap-1.5 sm:gap-2 truncate">
                     {getPageTitle()}
                   </h1>
-                  <p className="text-[11px] text-slate-400 hidden sm:block">
+                  <p className="text-[11px] text-slate-400 hidden sm:block truncate">
                     {profile.name} • Sistem Kas Masjid Transparan & Aman
                   </p>
                 </div>
@@ -481,44 +480,6 @@ export default function App() {
 
               {/* Right Action Buttons */}
               <div className="flex items-center gap-2 sm:gap-2.5">
-                {/* Fullscreen Mobile 1-Touch Toggle & Guide */}
-                <div className="flex items-center bg-emerald-50 border border-emerald-200 rounded-xl p-0.5 shadow-xs">
-                  <button
-                    onClick={toggleFullscreen}
-                    className="px-2.5 sm:px-3 py-1 text-emerald-800 text-xs font-bold flex items-center gap-1.5 hover:bg-emerald-100 rounded-lg transition-all"
-                    title={isFullscreen ? 'Kembali dari Layar Penuh' : 'Sentuh untuk Layar Penuh HP'}
-                  >
-                    {isFullscreen ? (
-                      <Minimize2 className="w-3.5 h-3.5 text-emerald-700" />
-                    ) : (
-                      <Maximize2 className="w-3.5 h-3.5 text-emerald-700" />
-                    )}
-                    <span className="hidden sm:inline">
-                      {isFullscreen ? 'Keluar Full' : 'Layar Penuh HP'}
-                    </span>
-                    <span className="sm:hidden text-[11px]">
-                      {isFullscreen ? 'Normal' : 'Full Layar'}
-                    </span>
-                  </button>
-
-                  <button
-                    onClick={() => setShowFullscreenModal(true)}
-                    className="p-1 hover:bg-emerald-200/60 text-emerald-700 rounded-lg transition-colors"
-                    title="Petunjuk Pasang ke Layar Utama (PWA / Full Screen)"
-                  >
-                    <Smartphone className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-
-                {/* PWA Install to Home Screen Button */}
-                <PWAInstallButton variant="header" />
-
-                {/* Google Drive Status Pill */}
-                <span className="hidden xl:flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold border border-emerald-200 shadow-xs">
-                  <Cloud className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Google Drive Terhubung</span>
-                </span>
-
                 {/* Cloud Real-Time Two-Way Sync Indicator */}
                 <button
                   onClick={handleManualSync}
@@ -562,26 +523,6 @@ export default function App() {
                   />
                 </button>
 
-                {/* Bagikan Link Sinkron Button */}
-                <button
-                  onClick={handleShareLink}
-                  className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 border border-slate-300 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-xs cursor-pointer"
-                  title="Salin Tautan Aplikasi untuk Dibagikan ke HP Lain (Tetap Singkron)"
-                >
-                  {copyFeedback ? (
-                    <>
-                      <Check className="w-3.5 h-3.5 text-emerald-600 font-bold" />
-                      <span className="text-emerald-700 font-bold">Link Tersalin!</span>
-                    </>
-                  ) : (
-                    <>
-                      <Share2 className="w-3.5 h-3.5 text-slate-600" />
-                      <span className="hidden sm:inline">Bagikan Link</span>
-                      <span className="sm:hidden">Share</span>
-                    </>
-                  )}
-                </button>
-
                 {/* Switch to TV Display Mode */}
                 <button
                   onClick={() => setCurrentMode('tv')}
@@ -609,7 +550,7 @@ export default function App() {
             </header>
 
             {/* Scrollable Main Content Body */}
-            <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-7 bg-slate-100/70">
+            <main className="flex-1 overflow-y-auto p-3 sm:p-5 lg:p-7 bg-slate-100/70">
               <div className="max-w-7xl mx-auto">
                 {/* 1. DASHBOARD */}
                 {adminTab === 'dashboard' && (
@@ -768,77 +709,6 @@ export default function App() {
                 )}
               </div>
             </main>
-
-            {/* Mobile Bottom Navigation Bar (Edge-to-Edge Sticky/Fixed) */}
-            <nav className="no-print md:hidden shrink-0 w-full bg-white/95 backdrop-blur-md border-t border-slate-200/90 py-1.5 px-2 pb-[max(0.375rem,env(safe-area-inset-bottom))] flex items-center justify-around gap-1 z-30 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] sticky bottom-0">
-              <button
-                onClick={() => setAdminTab('dashboard')}
-                className={`flex-1 flex flex-col items-center justify-center py-1 px-0.5 rounded-xl text-[9px] font-semibold transition-all ${
-                  adminTab === 'dashboard'
-                    ? 'text-emerald-700 bg-emerald-50 font-bold'
-                    : 'text-slate-500 hover:text-slate-800'
-                }`}
-              >
-                <Home className="w-4 h-4 mb-0.5" />
-                <span>Home</span>
-              </button>
-              <button
-                onClick={() => setAdminTab('riwayat-kas')}
-                className={`flex-1 flex flex-col items-center justify-center py-1 px-0.5 rounded-xl text-[9px] font-semibold transition-all ${
-                  adminTab === 'riwayat-kas'
-                    ? 'text-emerald-700 bg-emerald-50 font-bold'
-                    : 'text-slate-500 hover:text-slate-800'
-                }`}
-              >
-                <Wallet className="w-4 h-4 mb-0.5" />
-                <span>Kas</span>
-              </button>
-              <button
-                onClick={() => setAdminTab('kelola-rekening')}
-                className={`flex-1 flex flex-col items-center justify-center py-1 px-0.5 rounded-xl text-[9px] font-semibold transition-all ${
-                  adminTab === 'kelola-rekening' || adminTab.startsWith('rekening-')
-                    ? 'text-emerald-700 bg-emerald-50 font-bold'
-                    : 'text-slate-500 hover:text-slate-800'
-                }`}
-              >
-                <CreditCard className="w-4 h-4 mb-0.5" />
-                <span>Rekening</span>
-              </button>
-              <button
-                onClick={() => setAdminTab('jadwal')}
-                className={`flex-1 flex flex-col items-center justify-center py-1 px-0.5 rounded-xl text-[9px] font-semibold transition-all ${
-                  adminTab === 'jadwal'
-                    ? 'text-emerald-700 bg-emerald-50 font-bold'
-                    : 'text-slate-500 hover:text-slate-800'
-                }`}
-              >
-                <Calendar className="w-4 h-4 mb-0.5" />
-                <span>Jadwal</span>
-              </button>
-              <button
-                onClick={toggleFullscreen}
-                className={`flex-1 flex flex-col items-center justify-center py-1 px-0.5 rounded-xl text-[9px] font-semibold transition-all ${
-                  isFullscreen
-                    ? 'text-emerald-700 bg-emerald-50 font-bold'
-                    : 'text-emerald-600 hover:bg-emerald-50'
-                }`}
-                title={isFullscreen ? 'Keluar Fullscreen' : 'Layar Penuh HP'}
-              >
-                {isFullscreen ? (
-                  <Minimize2 className="w-4 h-4 mb-0.5 text-emerald-700" />
-                ) : (
-                  <Maximize2 className="w-4 h-4 mb-0.5 text-emerald-600" />
-                )}
-                <span>{isFullscreen ? 'Normal' : 'Full Layar'}</span>
-              </button>
-              <button
-                onClick={() => setMobileMenuOpen(true)}
-                className="flex-1 flex flex-col items-center justify-center py-1 px-0.5 rounded-xl text-[9px] font-semibold text-slate-500 hover:text-slate-800 transition-all"
-              >
-                <Menu className="w-4 h-4 mb-0.5" />
-                <span>Menu</span>
-              </button>
-            </nav>
           </div>
         </div>
       )}

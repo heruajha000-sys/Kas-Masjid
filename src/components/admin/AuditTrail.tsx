@@ -120,8 +120,8 @@ export const AuditTrail: React.FC<AuditTrailProps> = ({ logs, currentUser }) => 
 
       {/* Log Table */}
       <div className="rounded-2xl border border-slate-800 bg-slate-900/90 overflow-hidden shadow-lg">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
+        <div className="overflow-x-auto w-full">
+          <table className="w-full text-left text-xs border-collapse min-w-[650px]">
             <thead>
               <tr className="bg-slate-950/70 border-b border-slate-800 text-slate-400 uppercase font-semibold">
                 <th className="p-3.5 w-40">Waktu & Tanggal</th>
